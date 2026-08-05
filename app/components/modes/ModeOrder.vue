@@ -11,6 +11,8 @@ import type { TaskResult, Unit } from '~/types'
 const props = defineProps<{ unit: Unit; intensity: number }>()
 const emit = defineEmits<{ graded: [TaskResult] }>()
 
+const { settings } = useSettings()
+
 /**
  * How finely to cut the provision — the longest a tile may run, in words.
  * Smaller tiles mean more of them and fewer words of context inside each, so
@@ -24,7 +26,14 @@ const GRAINS = [
   { value: 1, label: 'Words' },
 ] as const
 
-const grain = ref(nearestGrain(14 - props.intensity * 9))
+// Once the learner has picked a piece size, it follows them section to
+// section instead of resetting to whatever mastery would have chosen.
+const grain = ref(settings.orderGrain ?? nearestGrain(14 - props.intensity * 9))
+
+function setGrain(value: number) {
+  grain.value = value
+  settings.orderGrain = value
+}
 
 /** The tiles in their true order. Index doubles as the answer key. */
 const chunks = computed(() =>
@@ -111,7 +120,7 @@ defineExpose({ actionLabel: 'Check order', canCheck, check, hideAction: false, r
               : 'text-ink-dim hover:bg-panel-2 hover:text-ink'
           "
           :disabled="graded"
-          @click="grain = option.value"
+          @click="setGrain(option.value)"
         >
           {{ option.label }}
         </button>

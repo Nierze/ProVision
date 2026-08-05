@@ -15,6 +15,13 @@ export interface Settings {
   sessionLength: number
   /** Experience to earn each day. */
   dailyGoal: number
+  /**
+   * Order drill's piece size, in max words per tile — see `GRAINS` in
+   * `ModeOrder.vue`. `null` until the learner picks one, so mastery keeps
+   * choosing it section to section; once picked, that choice sticks instead
+   * of resetting every time the drill moves to a new section.
+   */
+  orderGrain: number | null
 }
 
 const DEFAULTS: Settings = {
@@ -23,6 +30,7 @@ const DEFAULTS: Settings = {
   hideWordLengths: false,
   sessionLength: 8,
   dailyGoal: 60,
+  orderGrain: null,
 }
 
 const settings = reactive<Settings>(readJson(KEY, DEFAULTS))
