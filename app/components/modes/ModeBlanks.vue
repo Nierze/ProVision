@@ -135,6 +135,17 @@ function onKeydown(event: KeyboardEvent) {
     else step(input, 1)
     return
   }
+  // Nothing left to delete here — hop back and keep deleting from there.
+  if (event.key === 'Backspace' && !input.value) {
+    const list = inputs()
+    const prev = list[list.indexOf(input) - 1]
+    if (prev) {
+      event.preventDefault()
+      prev.focus()
+      prev.setSelectionRange(prev.value.length, prev.value.length)
+    }
+    return
+  }
   // Arrows only leave the field once the caret is already at the edge.
   if (event.key === 'ArrowLeft' && input.selectionStart === 0) {
     event.preventDefault()

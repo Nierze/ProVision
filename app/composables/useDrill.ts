@@ -9,6 +9,11 @@
 import type { MasteryLevel, ModeId, Task, Unit } from '~/types'
 import { UNITS, articleById, unitById } from '~/data/corpus'
 
+/** Where a unit sits in the constitution, front to back — for presenting a queue in reading order. */
+const POSITION = new Map(UNITS.map((unit, i) => [unit.id, i]))
+const byPosition = (units: Unit[]) =>
+  [...units].sort((a, b) => POSITION.get(a.id)! - POSITION.get(b.id)!)
+
 /**
  * Which drill to give a provision at each stage of knowing it. Early on the
  * job is to build the chain of clauses; later it is to produce the words
@@ -74,10 +79,13 @@ export function useDrill() {
     }
 
     // `review` — the schedule's own answer, topped up with new material so a
-    // session is never empty on a quiet day.
+    // session is never empty on a quiet day. Which units are due is a
+    // priority call the schedule makes; the order they're drilled in is not —
+    // reading order lets "Continue" move forward instead of hopping between
+    // articles by urgency.
     const due = progress.dueUnits.value
-    if (due.length >= request.count) return due
-    return [...due, ...progress.freshUnits.value.slice(0, request.count - due.length)]
+    if (due.length >= request.count) return byPosition(due)
+    return byPosition([...due, ...progress.freshUnits.value.slice(0, request.count - due.length)])
   }
 
   /**
