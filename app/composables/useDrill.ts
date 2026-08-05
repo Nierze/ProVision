@@ -116,9 +116,25 @@ export function useDrill() {
     return choices[Math.floor(Math.random() * choices.length)] ?? 'blanks'
   }
 
-  /** Honour the learner's choice unless the provision can't support it. */
+  /**
+   * Honour the learner's choice unless the provision can't support it — a
+   * nine-word section has nothing worth shuffling, a two-hundred-word one is
+   * not worth typing out.
+   *
+   * The stand-in is the suited mode closest in demand, so Recite falls back to
+   * Skeleton rather than all the way down to Locate. Reaching for the *lowest*
+   * demand handed every misfit to Locate, which is the one recognition drill
+   * in the set — the least like anything else, and the last thing someone who
+   * asked for Order wants instead.
+   */
   function usable(unit: Unit, mode: ModeId): ModeId {
-    return modeInfo(mode).suits(unit) ? mode : (modesFor(unit)[0]?.id ?? 'blanks')
+    if (modeInfo(mode).suits(unit)) return mode
+
+    const wanted = modeInfo(mode).demand
+    const [nearest] = modesFor(unit).sort(
+      (a, b) => Math.abs(a.demand - wanted) - Math.abs(b.demand - wanted),
+    )
+    return nearest?.id ?? 'blanks'
   }
 
   return { buildQueue, taskFor: toTask }

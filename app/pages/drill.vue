@@ -122,9 +122,13 @@ function advance() {
 
   // Locate is paired-associate drilling on one article's addresses — the
   // queue's own order would drag you off to something else entirely, so it
-  // keeps quizzing random sections of the same article instead.
+  // keeps quizzing random sections of the same article instead. Only when the
+  // whole session is Locate: a single task that merely *fell back* to Locate
+  // must not redirect the rest of an Order or Recite session.
   const current = task.value
-  if (current?.mode === 'locate') tasks.value[index.value + 1] = randomLocateTask(current.unit)
+  if (mode.value === 'locate' && current?.mode === 'locate') {
+    tasks.value[index.value + 1] = randomLocateTask(current.unit)
+  }
 
   index.value++
   graded.value = false
