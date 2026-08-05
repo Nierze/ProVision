@@ -57,5 +57,5 @@ function applyTheme(theme: Settings['theme']) {
   document.documentElement.classList.toggle('dark', theme === 'dark')
   document
     .querySelector('meta[name="theme-color"]')
-    ?.setAttribute('content', theme === 'dark' ? '#0e0817' : '#f3f0f9')
+    ?.setAttribute('content', theme === 'dark' ? '#1a1424' : '#f6f1fb')
 }

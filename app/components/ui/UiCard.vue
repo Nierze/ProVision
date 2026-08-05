@@ -6,7 +6,7 @@ withDefaults(defineProps<{ to?: string; pad?: 'sm' | 'md' | 'lg'; interactive?: 
 const PADS = { sm: 'p-3', md: 'p-4', lg: 'p-5 sm:p-6' }
 
 const HOVER =
-  'transition-[border-color,background,transform] duration-150 hover:border-line-2 hover:bg-panel-2 active:translate-y-px'
+  'transition-[border-color,background,transform,box-shadow] duration-200 ease-[var(--ease-out-soft)] hover:border-line-2 hover:bg-panel-2 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_-16px_var(--c-accent)] active:translate-y-0'
 </script>
 
 <template>

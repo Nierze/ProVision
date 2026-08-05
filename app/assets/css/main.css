@@ -11,26 +11,26 @@
   --font-serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
 
-  /* Royal — the judiciary purple. */
-  --color-royal-50: #f4f1fe;
-  --color-royal-100: #e9e3fd;
-  --color-royal-200: #d5c9fb;
-  --color-royal-300: #b7a2f6;
-  --color-royal-400: #9575ef;
-  --color-royal-500: #7b52e4;
-  --color-royal-600: #6835d2;
-  --color-royal-700: #5827b2;
-  --color-royal-800: #482291;
-  --color-royal-900: #3c2076;
-  --color-royal-950: #240f4e;
+  /* Royal — the judiciary purple, softened to a pastel lilac. */
+  --color-royal-50: #faf8fe;
+  --color-royal-100: #f2edfc;
+  --color-royal-200: #e4d9f8;
+  --color-royal-300: #d0bdf1;
+  --color-royal-400: #b79ce6;
+  --color-royal-500: #9c7ed8;
+  --color-royal-600: #8663c4;
+  --color-royal-700: #6d4da3;
+  --color-royal-800: #563e80;
+  --color-royal-900: #453466;
+  --color-royal-950: #2b2044;
 
-  /* Brass — seals, laurels, "so close" states. */
-  --color-brass-200: #f2e3bb;
-  --color-brass-300: #e8cc8a;
-  --color-brass-400: #d9b45c;
-  --color-brass-500: #c79a2e;
-  --color-brass-600: #a87c1e;
-  --color-brass-700: #7f5c17;
+  /* Brass — seals, laurels, "so close" states — dialled to a pastel champagne. */
+  --color-brass-200: #f8ecd6;
+  --color-brass-300: #f1ddb2;
+  --color-brass-400: #e4c485;
+  --color-brass-500: #cfa95e;
+  --color-brass-600: #ad8a45;
+  --color-brass-700: #866a34;
 
   /* Parchment — the provision itself is always printed on paper. */
   --color-parchment: #fbf8f0;
@@ -39,10 +39,11 @@
   --color-parchment-dim: #6b6153;
 
   /* Marking colours. Fixed, not theme-flipping: they are only ever used on
-     parchment, which is cream in both themes. */
-  --color-mark-good: #17724f;
-  --color-mark-near: #8a5e0a;
-  --color-mark-bad: #b02338;
+     parchment, which is cream in both themes. Softened, but still legible
+     as small text on cream. */
+  --color-mark-good: #23825c;
+  --color-mark-near: #97700f;
+  --color-mark-bad: #bb3350;
 
   --radius-card: 14px;
   --radius-page: 18px;
@@ -55,41 +56,41 @@
       so a component never needs to know which theme is on.
    ========================================================================== */
 :root {
-  --c-surface: #f3f0f9;
+  --c-surface: #f6f1fb;
   --c-panel: #ffffff;
-  --c-panel-2: #faf8fd;
-  --c-panel-3: #efeaf7;
-  --c-line: rgb(36 15 78 / 0.11);
-  --c-line-2: rgb(36 15 78 / 0.22);
-  --c-text: #1f1430;
-  --c-text-dim: #5c4e72;
-  --c-text-faint: #8a7ca0;
-  --c-accent: #6835d2;
-  --c-accent-2: #5827b2;
-  --c-accent-soft: rgb(104 53 210 / 0.09);
-  --c-good: #1a8a5f;
-  --c-near: #9a6a0c;
-  --c-bad: #c02a44;
-  --c-shadow: 12px 30px -18px rgb(36 15 78 / 0.28);
+  --c-panel-2: #f7f2fc;
+  --c-panel-3: #efe4f8;
+  --c-line: rgb(109 77 163 / 0.14);
+  --c-line-2: rgb(109 77 163 / 0.26);
+  --c-text: #2a2039;
+  --c-text-dim: #675a7f;
+  --c-text-faint: #9689ab;
+  --c-accent: #8663c4;
+  --c-accent-2: #6d4da3;
+  --c-accent-soft: rgb(134 99 196 / 0.11);
+  --c-good: #2f9670;
+  --c-near: #a97c17;
+  --c-bad: #c94a67;
+  --c-shadow: 12px 30px -18px rgb(109 77 163 / 0.24);
 }
 
 .dark {
-  --c-surface: #0e0817;
-  --c-panel: #171024;
-  --c-panel-2: #211734;
-  --c-panel-3: #2c2043;
-  --c-line: rgb(255 255 255 / 0.09);
-  --c-line-2: rgb(255 255 255 / 0.2);
-  --c-text: #ede8f5;
-  --c-text-dim: #a99bc0;
-  --c-text-faint: #7a6c93;
-  --c-accent: #9575ef;
-  --c-accent-2: #b7a2f6;
-  --c-accent-soft: rgb(149 117 239 / 0.14);
-  --c-good: #34d399;
-  --c-near: #fbbf24;
-  --c-bad: #fb7185;
-  --c-shadow: 12px 34px -20px rgb(0 0 0 / 0.7);
+  --c-surface: #1a1424;
+  --c-panel: #241c33;
+  --c-panel-2: #2b2240;
+  --c-panel-3: #372b4d;
+  --c-line: rgb(224 210 248 / 0.12);
+  --c-line-2: rgb(224 210 248 / 0.24);
+  --c-text: #f1ecf9;
+  --c-text-dim: #bcaed6;
+  --c-text-faint: #8c7ea8;
+  --c-accent: #9f82d6;
+  --c-accent-2: #c3aef0;
+  --c-accent-soft: rgb(159 130 214 / 0.18);
+  --c-good: #83d9b3;
+  --c-near: #edc678;
+  --c-bad: #ee97a4;
+  --c-shadow: 12px 34px -20px rgb(10 6 20 / 0.55);
 }
 
 /* `inline` makes utilities emit var(--c-…) directly, so a theme swap on <html>
@@ -194,8 +195,8 @@
     background-image: linear-gradient(
       to right,
       transparent calc(1.5rem - 1px),
-      rgb(104 53 210 / 0.16) calc(1.5rem - 1px),
-      rgb(104 53 210 / 0.16) 1.5rem,
+      rgb(134 99 196 / 0.18) calc(1.5rem - 1px),
+      rgb(134 99 196 / 0.18) 1.5rem,
       transparent 1.5rem
     );
   }

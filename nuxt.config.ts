@@ -28,7 +28,7 @@ export default defineNuxtConfig({
           content:
             'Commit the 1987 Philippine Constitution to memory with spaced repetition and five recall drills.',
         },
-        { name: 'theme-color', content: '#0e0817' },
+        { name: 'theme-color', content: '#1a1424' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
       ],
       script: [

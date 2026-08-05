@@ -45,7 +45,9 @@ const LENGTHS = [5, 8, 12, 20]
         <p class="stamp text-ink-faint">Started</p>
       </UiCard>
       <UiCard pad="sm" class="text-center">
-        <p class="text-2xl font-bold text-brass-500 tabular-nums">{{ streak }}</p>
+        <p class="text-2xl font-bold text-brass-700 tabular-nums dark:text-brass-400">
+          {{ streak }}
+        </p>
         <p class="stamp text-ink-faint">Day streak</p>
       </UiCard>
       <UiCard pad="sm" class="text-center">

@@ -37,7 +37,7 @@ const goalReached = computed(() => todayXp.value >= settings.dailyGoal)
       <div class="ml-auto flex items-center gap-1.5">
         <span
           v-if="streak > 0"
-          class="flex items-center gap-1 rounded-full border border-line px-2.5 py-1 text-xs font-semibold text-brass-500"
+          class="flex items-center gap-1 rounded-full border border-line px-2.5 py-1 text-xs font-semibold text-brass-700 dark:text-brass-400"
           :title="`${streak}-day streak`"
         >
           <UiIcon name="flame" :size="14" />

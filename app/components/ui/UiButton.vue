@@ -19,7 +19,7 @@ const props = withDefaults(
 
 const VARIANTS = {
   primary:
-    'bg-accent text-white border-transparent shadow-[0_6px_18px_-8px_var(--c-accent)] hover:brightness-110 active:brightness-95',
+    'bg-gradient-to-br from-royal-600 to-royal-700 text-white border-transparent shadow-[0_6px_18px_-8px_var(--c-accent)] hover:brightness-110 active:brightness-95',
   secondary: 'bg-panel-2 text-ink border-line hover:bg-panel-3 hover:border-line-2',
   ghost: 'bg-transparent text-ink-dim border-transparent hover:bg-panel-2 hover:text-ink',
   danger: 'bg-transparent text-bad border-line hover:border-bad/50 hover:bg-bad/8',
@@ -33,8 +33,9 @@ const SIZES = {
 
 const classes = computed(() => [
   'inline-flex items-center justify-center border font-semibold select-none',
-  'transition-[background,border-color,filter,transform] duration-150 active:translate-y-px',
-  'disabled:opacity-45 disabled:pointer-events-none',
+  'transition-[background,border-color,filter,transform,box-shadow] duration-200 ease-[var(--ease-out-soft)]',
+  'hover:-translate-y-0.5 active:translate-y-0',
+  'disabled:opacity-45 disabled:pointer-events-none disabled:hover:translate-y-0',
   VARIANTS[props.variant],
   SIZES[props.size],
   props.block && 'w-full',

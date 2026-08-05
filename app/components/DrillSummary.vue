@@ -28,8 +28,13 @@ const headline = computed(() => {
 
 <template>
   <div class="mx-auto w-full max-w-2xl space-y-5 px-4 py-8">
-    <div class="text-center">
-      <TheSeal :size="56" class="mx-auto" />
+    <div class="relative text-center">
+      <div
+        aria-hidden="true"
+        class="pointer-events-none absolute inset-x-0 top-0 mx-auto size-40 rounded-full opacity-70 blur-3xl"
+        style="background: radial-gradient(circle, var(--c-accent-soft), transparent 70%)"
+      />
+      <TheSeal :size="56" class="relative mx-auto" />
       <h1 class="mt-3 font-serif text-3xl font-bold">{{ headline }}</h1>
       <p class="mt-1 text-sm text-ink-dim">{{ describeScope(scope) }}</p>
     </div>

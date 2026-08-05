@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { SOURCE, TOTAL_UNITS } from '~/data/corpus'
+import { AUTHOR } from '~/data/author'
 </script>
 
 <template>
@@ -35,5 +36,24 @@ import { SOURCE, TOTAL_UNITS } from '~/data/corpus'
         >{{ SOURCE.name }}</a
       >, {{ SOURCE.licence }}. Verify anything you intend to quote against the official text.
     </p>
+
+    <div class="border-t border-line pt-4">
+      <p class="stamp text-ink-faint">Made by</p>
+      <p class="mt-1 font-serif text-base font-semibold">{{ AUTHOR.name }}</p>
+
+      <ul class="mt-3 flex flex-wrap gap-2">
+        <li v-for="link in AUTHOR.links" :key="link.id">
+          <a
+            :href="link.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-1.5 rounded-lg border border-line px-2.5 py-1.5 text-xs font-medium text-ink-dim transition-[color,border-color,transform] duration-150 hover:-translate-y-px hover:border-line-2 hover:text-ink"
+          >
+            <UiIcon :name="link.icon" :size="14" class="text-accent" />
+            {{ link.label }}
+          </a>
+        </li>
+      </ul>
+    </div>
   </section>
 </template>

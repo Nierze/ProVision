@@ -7,4 +7,5 @@ useSettings()
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
+  <AppIntro />
 </template>
