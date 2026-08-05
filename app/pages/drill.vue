@@ -31,6 +31,7 @@ interface ModeApi {
   canCheck: boolean
   check: () => void
   hideAction: boolean
+  retry: () => void
 }
 
 const route = useRoute()
@@ -75,9 +76,15 @@ function onGraded(result: TaskResult) {
   const current = task.value
   if (!current || graded.value) return
 
+  // Only the first grading of a task banks XP and reschedules its card — a
+  // restart is practice, not a second review, so later attempts just update
+  // what's shown.
+  const first = !current.result
   current.result = result
-  lastXp.value = record(current.unit, current.mode, result)
-  sessionXp.value += lastXp.value
+  if (first) {
+    lastXp.value = record(current.unit, current.mode, result)
+    sessionXp.value += lastXp.value
+  }
   graded.value = true
 }
 
@@ -87,6 +94,13 @@ function advance() {
     index.value++
     graded.value = false
   }
+}
+
+/** Redo the current task from scratch instead of moving on. */
+function retry() {
+  if (!graded.value) return
+  activeMode.value?.retry()
+  graded.value = false
 }
 
 /**
@@ -198,17 +212,29 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
           +{{ lastXp }} XP
         </span>
 
-        <UiButton
-          v-if="!hideAction || graded"
-          variant="primary"
-          size="lg"
-          block
-          :disabled="!graded && !canCheck"
-          :icon-after="graded ? (isLast ? undefined : 'arrowRight') : undefined"
-          @click="onAction"
-        >
-          {{ graded ? (isLast ? 'See results' : 'Continue') : actionLabel }}
-        </UiButton>
+        <template v-if="!hideAction || graded">
+          <UiButton
+            v-if="graded"
+            variant="secondary"
+            size="lg"
+            icon="review"
+            aria-label="Restart this task"
+            @click="retry"
+          >
+            Restart
+          </UiButton>
+
+          <UiButton
+            variant="primary"
+            size="lg"
+            block
+            :disabled="!graded && !canCheck"
+            :icon-after="graded ? (isLast ? undefined : 'arrowRight') : undefined"
+            @click="onAction"
+          >
+            {{ graded ? (isLast ? 'See results' : 'Continue') : actionLabel }}
+          </UiButton>
+        </template>
 
         <!-- Locate grades on tap; Skeleton asks you to grade yourself. -->
         <p v-else class="flex-1 text-center text-sm text-ink-faint">

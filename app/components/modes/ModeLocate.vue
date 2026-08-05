@@ -51,6 +51,11 @@ function choose(option: Unit) {
   emit('graded', { accuracy: hit ? 1 : 0, grade: hit ? 2 : 0 })
 }
 
+/** Same question, same options — just clear the pick so it can be answered again. */
+function retry() {
+  picked.value = null
+}
+
 /** Only ever shows the article and section, never the topic — that'd give it away. */
 const labelFor = (option: Unit) =>
   direction.value === 'whereFrom' ? option.cite : snippet(option.text, 16)
@@ -60,6 +65,7 @@ defineExpose({
   canCheck: false,
   check: () => {},
   hideAction: true,
+  retry,
 })
 </script>
 

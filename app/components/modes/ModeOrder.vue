@@ -58,7 +58,7 @@ function check() {
   emit('graded', { accuracy, grade: gradeFromAccuracy(accuracy) })
 }
 
-defineExpose({ actionLabel: 'Check order', canCheck, check, hideAction: false })
+defineExpose({ actionLabel: 'Check order', canCheck, check, hideAction: false, retry: deal })
 </script>
 
 <template>

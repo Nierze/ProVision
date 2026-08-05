@@ -31,12 +31,17 @@ const RATIOS = [
 
 const tokens = computed(() => tokenise(props.unit.text))
 const ratio = ref(nearestRatio(0.25 + props.intensity * 0.6))
+/** Every word gone, and the lead/trail punctuation and length cues gone with it. */
+const blind = ref(false)
 const blanks = ref<Blank[]>([])
 const graded = ref(false)
 
 const paper = useTemplateRef<HTMLElement>('paper')
 
 const blankAt = computed(() => new Map(blanks.value.map(blank => [blank.index, blank])))
+const effectiveRatio = computed(() => (blind.value ? 1 : ratio.value))
+/** Lead/trail punctuation is a scaffold too — hide it while writing blind. */
+const showPunctuation = computed(() => graded.value || !blind.value)
 
 function nearestRatio(wanted: number) {
   return RATIOS.reduce((best, option) =>
@@ -45,14 +50,14 @@ function nearestRatio(wanted: number) {
 }
 
 function deal() {
-  const chosen = pickBlanks(tokens.value, ratio.value, settings.keyWordsFirst)
+  const chosen = pickBlanks(tokens.value, effectiveRatio.value, settings.keyWordsFirst)
   blanks.value = [...chosen]
     .sort((a, b) => a - b)
     .map(index => ({ index, word: tokens.value[index]!.word, value: '', state: 'idle', hint: 0 }))
   graded.value = false
 }
 
-watch(() => [props.unit.id, ratio.value], deal, { immediate: true })
+watch(() => [props.unit.id, effectiveRatio.value], deal, { immediate: true })
 
 /* ------------------------------------------------------------------ */
 /* Scoring                                                             */
@@ -75,10 +80,10 @@ function check() {
   emit('graded', { accuracy, grade: gradeFromAccuracy(accuracy) })
 }
 
-/** Reveal one more letter of the blank you are standing on. */
+/** Reveal one more letter of the blank you are standing on. Not while writing blind. */
 function hint() {
   const blank = focused() ?? blanks.value.find(b => b.state === 'idle' && !b.value)
-  if (!blank || graded.value) return
+  if (!blank || graded.value || blind.value) return
 
   blank.hint = Math.min(blank.hint + 1, blank.word.length)
   blank.value = blank.word.slice(0, blank.hint)
@@ -142,34 +147,60 @@ function onKeydown(event: KeyboardEvent) {
 }
 
 const widthFor = (blank: Blank) =>
-  `${settings.hideWordLengths ? 7 : Math.max(blank.word.length, 3) + 1}ch`
+  `${settings.hideWordLengths || blind.value ? 7 : Math.max(blank.word.length, 3) + 1}ch`
 
-defineExpose({ actionLabel: 'Check', canCheck, check, hideAction: false })
+/** Same blanks, cleared, so a poor attempt can be tried again. */
+function retry() {
+  for (const blank of blanks.value) {
+    blank.value = ''
+    blank.state = 'idle'
+    blank.hint = 0
+  }
+  graded.value = false
+}
+
+defineExpose({ actionLabel: 'Check', canCheck, check, hideAction: false, retry })
 </script>
 
 <template>
   <div class="space-y-4">
     <div class="flex flex-wrap items-center justify-between gap-2">
-      <div class="inline-flex overflow-hidden rounded-lg border border-line" role="group" aria-label="Words removed">
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="inline-flex overflow-hidden rounded-lg border border-line" role="group" aria-label="Words removed">
+          <button
+            v-for="option in RATIOS"
+            :key="option.value"
+            class="min-h-9 px-3 text-xs font-semibold transition-colors"
+            :class="
+              !blind && ratio === option.value
+                ? 'bg-accent text-white'
+                : 'text-ink-dim hover:bg-panel-2 hover:text-ink'
+            "
+            :disabled="graded || blind"
+            @click="ratio = option.value"
+          >
+            {{ option.label }}
+          </button>
+        </div>
+
         <button
-          v-for="option in RATIOS"
-          :key="option.value"
-          class="min-h-9 px-3 text-xs font-semibold transition-colors"
+          class="min-h-9 rounded-lg border px-3 text-xs font-semibold transition-colors"
           :class="
-            ratio === option.value
-              ? 'bg-accent text-white'
-              : 'text-ink-dim hover:bg-panel-2 hover:text-ink'
+            blind
+              ? 'border-accent bg-accent text-white'
+              : 'border-line text-ink-dim hover:bg-panel-2 hover:text-ink'
           "
           :disabled="graded"
-          @click="ratio = option.value"
+          :aria-pressed="blind"
+          @click="blind = !blind"
         >
-          {{ option.label }}
+          Blind
         </button>
       </div>
 
       <div class="flex gap-2">
         <UiButton size="sm" icon="shuffle" :disabled="graded" @click="deal">New blanks</UiButton>
-        <UiButton size="sm" icon="hint" :disabled="graded" @click="hint">Hint</UiButton>
+        <UiButton size="sm" icon="hint" :disabled="graded || blind" @click="hint">Hint</UiButton>
       </div>
     </div>
 
@@ -177,7 +208,7 @@ defineExpose({ actionLabel: 'Check', canCheck, check, hideAction: false })
       <ProvisionPaper :unit="unit" loose>
         <template v-for="(token, i) in tokens" :key="i">
           <span v-if="blankAt.get(i)" class="inline-block whitespace-nowrap">
-            <template v-if="token.lead">{{ token.lead }}</template>
+            <template v-if="token.lead && showPunctuation">{{ token.lead }}</template>
 
             <!-- Solved words settle back into the sentence as plain text. -->
             <span
@@ -211,7 +242,7 @@ defineExpose({ actionLabel: 'Check', canCheck, check, hideAction: false })
               @keydown="onKeydown"
             />
 
-            <template v-if="token.trail">{{ token.trail }}</template>
+            <template v-if="token.trail && showPunctuation">{{ token.trail }}</template>
           </span>
 
           <template v-else>{{ token.lead + token.word + token.trail }}</template>

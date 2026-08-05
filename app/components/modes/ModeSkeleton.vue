@@ -60,12 +60,19 @@ function selfGrade(grade: Grade, accuracy: number) {
   emit('graded', { accuracy, grade })
 }
 
+function retry() {
+  revealed.value = false
+  graded.value = false
+  stopSpeech()
+}
+
 defineExpose({
   actionLabel: 'Reveal',
   canCheck: computed(() => !revealed.value),
   check: reveal,
   // Once revealed the learner grades themselves, so the shell's button steps aside.
   hideAction: computed(() => revealed.value && !graded.value),
+  retry,
 })
 </script>
 

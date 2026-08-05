@@ -38,6 +38,12 @@ function check() {
   })
 }
 
+function retry() {
+  typed.value = ''
+  graded.value = false
+  nextTick(() => box.value?.focus())
+}
+
 /** Grow with the text rather than making the learner scroll a small box. */
 function autoGrow() {
   const element = box.value
@@ -46,7 +52,7 @@ function autoGrow() {
   element.style.height = `${Math.min(element.scrollHeight, 420)}px`
 }
 
-defineExpose({ actionLabel: 'Check recall', canCheck, check, hideAction: false })
+defineExpose({ actionLabel: 'Check recall', canCheck, check, hideAction: false, retry })
 </script>
 
 <template>

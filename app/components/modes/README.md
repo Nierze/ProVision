@@ -22,12 +22,18 @@ defineExpose({
   canCheck,     // boolean  — is there enough input to score?
   check,        // ()=>void — score it, then emit `graded`
   hideAction,   // boolean  — true while the mode shows its own controls
+  retry,        // ()=>void — clear this attempt so the learner can redo it
 })
 ```
 
 Once `graded` has fired the shell swaps its button for **Continue**, so a mode
 should reveal the right answer as part of scoring — corrective feedback is the
-point of the exercise.
+point of the exercise. It also offers **Restart**, which calls `retry()`: undo
+the attempt (clear input, un-reveal the answer) without reshuffling the
+underlying task, so the learner faces the same blanks/order/question again.
+Only the first `graded` emission per task counts toward XP and scheduling —
+the shell tracks that, so `retry` itself needs no bookkeeping beyond resetting
+local state.
 
 ## Adding a mode
 
