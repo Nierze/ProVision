@@ -9,8 +9,12 @@ import { articleById } from '~/data/corpus'
 
 const props = defineProps<{
   unit: Unit
-  /** Locate quizzes the section number itself, so the nav can't give it away. */
-  hideNumber?: boolean
+  /**
+   * Locate asks the learner to name where this provision lives, so the nav
+   * must not say. Hides the number *and* the topic — the topic is printed
+   * under the right answer, which gives it away just as plainly.
+   */
+  hideIdentity?: boolean
 }>()
 const emit = defineEmits<{ select: [Unit] }>()
 
@@ -21,7 +25,9 @@ const units = computed(() => article.value?.units ?? [])
 const position = computed(() => units.value.findIndex(u => u.id === props.unit.id))
 
 /** `unit.label` falls back to "Section N" when there's no topic — as much a giveaway as `short`. */
-const currentLabel = computed(() => props.unit.topic || (props.hideNumber ? 'This section' : props.unit.label))
+const currentLabel = computed(() =>
+  props.hideIdentity ? 'This section' : props.unit.topic || props.unit.label,
+)
 
 const hasPrev = computed(() => position.value > 0)
 const hasNext = computed(() => position.value >= 0 && position.value < units.value.length - 1)
@@ -88,7 +94,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
         :aria-expanded="open"
         @click="toggle"
       >
-        <span v-if="!hideNumber" class="stamp shrink-0 text-accent">{{ unit.short }}</span>
+        <span v-if="!hideIdentity" class="stamp shrink-0 text-accent">{{ unit.short }}</span>
         <span class="min-w-0 truncate text-xs font-medium text-ink-dim">
           {{ currentLabel }}
         </span>
@@ -128,7 +134,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
             @click="pick(u)"
           >
             <span
-              v-if="!hideNumber"
+              v-if="!hideIdentity"
               class="stamp w-11 shrink-0 text-center"
               :class="u.id === unit.id ? 'text-accent' : 'text-ink-faint'"
             >

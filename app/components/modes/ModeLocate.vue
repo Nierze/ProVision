@@ -1,7 +1,11 @@
 <script setup lang="ts">
 /**
- * Paired-associate recall: the words and their address, in both directions.
- * Knowing a rule without being able to cite it is only half the job.
+ * Paired-associate recall in one direction only: here are the words, name the
+ * address. Knowing a rule without being able to cite it is only half the job.
+ *
+ * The reverse — showing a citation and picking its text out of a list — was
+ * dropped deliberately. It is a much easier ask, and reading four provisions
+ * to find the familiar one trains recognition rather than recall.
  *
  * Distractors come from the same article wherever possible — telling §7 from
  * §8 is the discrimination that matters, not telling Article III from XIV.
@@ -12,14 +16,10 @@ import { UNITS, articleById } from '~/data/corpus'
 const props = defineProps<{ unit: Unit; intensity: number }>()
 const emit = defineEmits<{ graded: [TaskResult] }>()
 
-type Direction = 'whereFrom' | 'whatSays'
-
-const direction = ref<Direction>('whereFrom')
 const options = ref<Unit[]>([])
 const picked = ref<Unit | null>(null)
 
 function deal() {
-  direction.value = Math.random() < 0.55 ? 'whereFrom' : 'whatSays'
   picked.value = null
 
   const siblings = (articleById(props.unit.articleId)?.units ?? []).filter(
@@ -56,10 +56,6 @@ function retry() {
   picked.value = null
 }
 
-/** Only ever shows the article and section, never the topic — that'd give it away. */
-const labelFor = (option: Unit) =>
-  direction.value === 'whereFrom' ? option.cite : snippet(option.text, 16)
-
 defineExpose({
   actionLabel: 'Choose',
   canCheck: false,
@@ -71,24 +67,12 @@ defineExpose({
 
 <template>
   <div class="space-y-4">
-    <p class="text-sm text-ink-dim">
-      {{
-        direction === 'whereFrom'
-          ? 'Which provision is this?'
-          : 'Which of these is the provision?'
-      }}
-    </p>
+    <p class="text-sm text-ink-dim">Which provision is this?</p>
 
-    <!-- The prompt. -->
-    <ProvisionPaper v-if="direction === 'whereFrom'" :unit="unit" :show-cite="false">
+    <!-- The words. The answer is its address. -->
+    <ProvisionPaper :unit="unit" :show-cite="false">
       {{ unit.text }}
     </ProvisionPaper>
-
-    <UiCard v-else pad="lg" class="text-center">
-      <p class="stamp text-ink-faint">{{ unit.articleSubject || unit.articleTitle }}</p>
-      <p class="mt-1 font-serif text-2xl font-semibold">{{ unit.cite }}</p>
-      <p v-if="unit.topic" class="mt-1 text-sm text-ink-dim">{{ unit.topic }}</p>
-    </UiCard>
 
     <!-- The four answers. -->
     <ul class="grid grid-cols-1 gap-2">
@@ -104,20 +88,8 @@ defineExpose({
           :disabled="!!picked"
           @click="choose(option)"
         >
-          <span
-            class="block"
-            :class="
-              direction === 'whereFrom'
-                ? 'font-serif text-base font-semibold'
-                : 'font-serif text-[15px] leading-snug'
-            "
-          >
-            {{ labelFor(option) }}
-          </span>
-          <span
-            v-if="direction === 'whereFrom' && option.topic"
-            class="mt-0.5 block text-xs text-ink-faint"
-          >
+          <span class="block font-serif text-base font-semibold">{{ option.cite }}</span>
+          <span v-if="option.topic" class="mt-0.5 block text-xs text-ink-faint">
             {{ option.topic }}
           </span>
         </button>

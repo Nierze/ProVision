@@ -275,7 +275,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 
       <DrillSectionNav
         :unit="task.unit"
-        :hide-number="task.mode === 'locate'"
+        :hide-identity="task.mode === 'locate'"
         @select="jumpToSection"
       />
     </header>

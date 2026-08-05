@@ -77,7 +77,7 @@ export const MODES: ModeInfo[] = [
     name: 'Locate',
     tagline: 'Name the article and section',
     rationale:
-      'Knowing a rule is useless if you cannot cite it. This drills the link between the words and their address, in both directions.',
+      'Knowing a rule is useless if you cannot cite it. You are shown the words and name the article and section they come from.',
     xp: 8,
     demand: 1,
     icon: 'locate',
