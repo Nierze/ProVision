@@ -8,6 +8,7 @@
  * than losing it.
  */
 import type { ModeId, Task, TaskResult, Unit } from '~/types'
+import { articleById } from '~/data/corpus'
 import ModeBlanks from '~/components/modes/ModeBlanks.vue'
 import ModeLocate from '~/components/modes/ModeLocate.vue'
 import ModeOrder from '~/components/modes/ModeOrder.vue'
@@ -105,12 +106,26 @@ function retry() {
 
 /**
  * Free navigation to another section of the same article — a deliberate
- * detour from the queue, not a graded step. Swaps the task at the current
- * slot rather than growing the queue, so the progress strip stays honest.
+ * detour from the queue, not a graded step.
+ *
+ * The queue ahead is re-laid from the section picked, so Continue carries on
+ * from where the learner actually is. Swapping only the current slot would
+ * leave the tail pointing wherever the session had got to before the detour,
+ * and Continue would jump back there. Steps already taken are left alone, and
+ * the queue keeps its length, so the progress strip stays honest.
  */
 function jumpToSection(unit: Unit) {
   if (!task.value || unit.id === task.value.unit.id) return
-  tasks.value[index.value] = taskFor(unit, mode.value)
+
+  const units = articleById(unit.articleId)?.units ?? []
+  const at = units.findIndex(candidate => candidate.id === unit.id)
+  const onward = at < 0 ? [unit] : units.slice(at)
+  const room = tasks.value.length - index.value
+
+  tasks.value = [
+    ...tasks.value.slice(0, index.value),
+    ...onward.slice(0, room).map(next => taskFor(next, mode.value)),
+  ]
   graded.value = false
 }
 
