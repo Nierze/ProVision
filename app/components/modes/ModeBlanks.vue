@@ -176,8 +176,8 @@ defineExpose({ actionLabel: 'Check', canCheck, check, hideAction: false, retry }
                 ? 'bg-accent text-white'
                 : 'text-ink-dim hover:bg-panel-2 hover:text-ink'
             "
-            :disabled="graded || blind"
-            @click="ratio = option.value"
+            :disabled="graded"
+            @click="ratio = option.value; blind = false"
           >
             {{ option.label }}
           </button>
