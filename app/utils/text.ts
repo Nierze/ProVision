@@ -70,18 +70,52 @@ export function tokenise(text: string): Token[] {
 
 const words = (text: string) => text.split(/\s+/).filter(Boolean)
 
+/** Shortest tile worth placing. Below this it is a stub, not a piece of sense. */
+const MIN_TILE = 3
+
+/**
+ * Where a run may be cut when punctuation offers nothing, best seam first.
+ * Statutory prose runs forty words without a comma, so these carry the weight:
+ * the cut lands before the word, where a reader would draw breath anyway.
+ */
+const SEAMS = [
+  /^(and|or|nor|but)$/i,
+  /^(which|who|whom|whose|that|when|where|while|unless|until|although|though|because|if|provided|except|subject)$/i,
+  /^(shall|may|must|will|is|are|was|were|be|has|have|had)$/i,
+  /^(of|in|on|to|for|by|with|from|upon|under|over|into|within|without|after|before|during|through|against|between|among|as|at)$/i,
+]
+
+const PAUSE = /[,;:]["')\]]?$/
+const STOP = /[.?!]["')\]]?$/
+const bare = (word: string) => word.replace(/[^A-Za-z'’-]/g, '')
+
 /**
  * Cut a provision into the tiles the Order drill shuffles.
  *
- * Clause boundaries are the natural seams — they are where the drafters
- * themselves paused — so we break after commas, semicolons and colons, then
- * even the tiles out so no one tile is a lone word.
+ * Punctuation gives the first seams — it is where the drafters themselves
+ * paused. But a sentence of legal prose will happily run past fifty words
+ * without one, and a fifty-word tile is not a puzzle, it is a wall of text.
+ * So length has the final say: anything still over `maxWords` is cut again at
+ * the best grammatical seam near its middle, and short tiles are filled back
+ * out to just under the limit. Lower `maxWords` for finer, harder tiles.
  */
-export function chunkForOrdering(text: string, max = 7, min = 3): string[] {
-  let parts = splitAfterPunctuation(text)
+export function chunkForOrdering(text: string, maxWords = 9, min = 3): string[] {
+  let parts = splitAfterPunctuation(text).flatMap(part => breakUpLong(part, maxWords))
 
-  while (parts.length > max) parts = mergeSmallestPair(parts)
-  while (parts.length < min && parts.some(p => words(p).length >= 4)) {
+  // Fuller tiles read better, so pull the small ones back together — but never
+  // past the length limit, and never down to fewer tiles than the drill needs.
+  for (;;) {
+    if (parts.length <= min) break
+    const merged = mergeSmallestPair(parts, maxWords)
+    if (!merged) break
+    parts = merged
+  }
+
+  parts = absorbStubs(parts)
+
+  // A short provision would rather be two honest tiles than three that cut
+  // "Supreme Court" down the middle, so only split what can spare the words.
+  while (parts.length < min && parts.some(p => words(p).length >= MIN_TILE * 2)) {
     parts = splitLongest(parts)
   }
   return parts
@@ -93,30 +127,93 @@ function splitAfterPunctuation(text: string): string[] {
 
   for (const word of words(text)) {
     current.push(word)
-    if (/[,;:]$/.test(word) && current.length >= 3) {
+    // A full stop is as real a seam as a comma — "P." and "No." are not.
+    const seam = PAUSE.test(word) || (STOP.test(word) && bare(word).length > 2)
+    if (seam && current.length >= MIN_TILE) {
       out.push(current.join(' '))
       current = []
     }
   }
-  if (current.length) {
-    // Never leave a stub at the end — fold it into the tile before it.
-    if (current.length < 3 && out.length) out[out.length - 1] += ' ' + current.join(' ')
-    else out.push(current.join(' '))
-  }
+  if (current.length) out.push(current.join(' '))
   return out.length ? out : [text]
 }
 
-function mergeSmallestPair(parts: string[]): string[] {
-  let at = 0
+/** Halve a run at its best seam until every piece is within the limit. */
+function breakUpLong(part: string, maxWords: number): string[] {
+  const list = words(part)
+  if (list.length <= maxWords) return [part]
+
+  const at = bestCut(list)
+  return [
+    ...breakUpLong(list.slice(0, at).join(' '), maxWords),
+    ...breakUpLong(list.slice(at).join(' '), maxWords),
+  ]
+}
+
+/**
+ * The cut nearest the middle, preferring the strongest seam. A good seam a few
+ * words off-centre beats an arbitrary cut dead on it, so rank costs more than
+ * distance — but only up to a point, or a lone "and" would drag every cut to
+ * the edge of the run.
+ */
+function bestCut(list: string[]): number {
+  const middle = list.length / 2
+  const edge = Math.min(MIN_TILE, Math.floor(list.length / 2))
+  let best = Math.round(middle)
+  let cost = Infinity
+
+  for (let i = edge; i <= list.length - edge; i++) {
+    const rank = seamRank(list[i - 1]!, list[i]!)
+    const here = rank * 4 + Math.abs(i - middle)
+    if (here < cost) {
+      cost = here
+      best = i
+    }
+  }
+  return best
+}
+
+function seamRank(before: string, at: string): number {
+  if (PAUSE.test(before) || STOP.test(before)) return 0
+  const hit = SEAMS.findIndex(seam => seam.test(bare(at)))
+  return hit < 0 ? SEAMS.length + 1 : hit + 1
+}
+
+/** Merge the smallest adjacent pair that still fits. Null when none can. */
+function mergeSmallestPair(parts: string[], maxWords: number): string[] | null {
+  let at = -1
   let smallest = Infinity
   for (let i = 0; i < parts.length - 1; i++) {
     const size = words(parts[i]!).length + words(parts[i + 1]!).length
-    if (size < smallest) {
+    if (size <= maxWords && size < smallest) {
       smallest = size
       at = i
     }
   }
+  if (at < 0) return null
   return [...parts.slice(0, at), `${parts[at]} ${parts[at + 1]}`, ...parts.slice(at + 2)]
+}
+
+/**
+ * A stub with no room left in either neighbour still has to go somewhere. Two
+ * words over the limit is a fairer trade than a tile reading "of the".
+ */
+function absorbStubs(parts: string[]): string[] {
+  if (parts.length < 2) return parts
+  const out = [...parts]
+
+  for (let i = 0; i < out.length && out.length > 1; ) {
+    if (words(out[i]!).length >= MIN_TILE) {
+      i++
+      continue
+    }
+    const before = i > 0 ? words(out[i - 1]!).length : Infinity
+    const after = i < out.length - 1 ? words(out[i + 1]!).length : Infinity
+    const at = before <= after ? i - 1 : i
+    out.splice(at, 2, `${out[at]} ${out[at + 1]}`)
+    i = Math.max(0, at)
+  }
+  return out
 }
 
 function splitLongest(parts: string[]): string[] {
@@ -125,11 +222,11 @@ function splitLongest(parts: string[]): string[] {
     if (words(parts[i]!).length > words(parts[at]!).length) at = i
   }
   const list = words(parts[at]!)
-  const half = Math.ceil(list.length / 2)
+  const cut = bestCut(list)
   return [
     ...parts.slice(0, at),
-    list.slice(0, half).join(' '),
-    list.slice(half).join(' '),
+    list.slice(0, cut).join(' '),
+    list.slice(cut).join(' '),
     ...parts.slice(at + 1),
   ]
 }

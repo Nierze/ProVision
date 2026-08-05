@@ -11,13 +11,32 @@ import type { TaskResult, Unit } from '~/types'
 const props = defineProps<{ unit: Unit; intensity: number }>()
 const emit = defineEmits<{ graded: [TaskResult] }>()
 
+/**
+ * How finely to cut the provision — the longest a tile may run, in words.
+ * Smaller tiles mean more of them and fewer words of context inside each, so
+ * the sequence has to come from memory rather than from reading the piece.
+ */
+const GRAINS = [
+  { value: 14, label: 'Clauses' },
+  { value: 9, label: 'Phrases' },
+  { value: 5, label: 'Fragments' },
+] as const
+
+const grain = ref(nearestGrain(14 - props.intensity * 9))
+
 /** The tiles in their true order. Index doubles as the answer key. */
-const chunks = computed(() => chunkForOrdering(props.unit.text))
+const chunks = computed(() => chunkForOrdering(props.unit.text, grain.value))
 
 const bank = ref<number[]>([])
 const tray = ref<number[]>([])
 const graded = ref(false)
 const announcement = ref('')
+
+function nearestGrain(wanted: number) {
+  return GRAINS.reduce((best, option) =>
+    Math.abs(option.value - wanted) < Math.abs(best.value - wanted) ? option : best,
+  ).value
+}
 
 function deal() {
   bank.value = shuffle(chunks.value.map((_, i) => i))
@@ -25,7 +44,7 @@ function deal() {
   graded.value = false
 }
 
-watch(() => props.unit.id, deal, { immediate: true })
+watch(() => [props.unit.id, grain.value], deal, { immediate: true })
 
 function place(id: number) {
   if (graded.value) return
@@ -63,6 +82,31 @@ defineExpose({ actionLabel: 'Check order', canCheck, check, hideAction: false, r
 
 <template>
   <div class="space-y-4">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <div
+        class="inline-flex overflow-hidden rounded-lg border border-line"
+        role="group"
+        aria-label="Piece size"
+      >
+        <button
+          v-for="option in GRAINS"
+          :key="option.value"
+          class="min-h-9 px-3 text-xs font-semibold transition-colors"
+          :class="
+            grain === option.value
+              ? 'bg-accent text-white'
+              : 'text-ink-dim hover:bg-panel-2 hover:text-ink'
+          "
+          :disabled="graded"
+          @click="grain = option.value"
+        >
+          {{ option.label }}
+        </button>
+      </div>
+
+      <span class="stamp shrink-0 text-ink-faint">{{ chunks.length }} pieces</span>
+    </div>
+
     <p class="text-sm text-ink-dim">
       Rebuild <span class="font-semibold text-ink">{{ unit.cite }}</span> by tapping the pieces in
       order.
