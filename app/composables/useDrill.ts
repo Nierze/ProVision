@@ -113,7 +113,7 @@ export function useDrill() {
     return modeInfo(mode).suits(unit) ? mode : (modesFor(unit)[0]?.id ?? 'blanks')
   }
 
-  return { buildQueue }
+  return { buildQueue, taskFor: toTask }
 }
 
 /** A human sentence for the session header. */

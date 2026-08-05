@@ -7,7 +7,7 @@
  * The whole session is described by the URL, so a reload rebuilds it rather
  * than losing it.
  */
-import type { ModeId, Task, TaskResult } from '~/types'
+import type { ModeId, Task, TaskResult, Unit } from '~/types'
 import ModeBlanks from '~/components/modes/ModeBlanks.vue'
 import ModeLocate from '~/components/modes/ModeLocate.vue'
 import ModeOrder from '~/components/modes/ModeOrder.vue'
@@ -36,7 +36,7 @@ interface ModeApi {
 const route = useRoute()
 const { settings } = useSettings()
 const { record } = useProgress()
-const { buildQueue } = useDrill()
+const { buildQueue, taskFor } = useDrill()
 
 const scope = computed(() => String(route.query.scope ?? 'review'))
 const mode = computed(() => String(route.query.mode ?? 'mixed') as ModeId | 'mixed')
@@ -87,6 +87,17 @@ function advance() {
     index.value++
     graded.value = false
   }
+}
+
+/**
+ * Free navigation to another section of the same article — a deliberate
+ * detour from the queue, not a graded step. Swaps the task at the current
+ * slot rather than growing the queue, so the progress strip stays honest.
+ */
+function jumpToSection(unit: Unit) {
+  if (!task.value || unit.id === task.value.unit.id) return
+  tasks.value[index.value] = taskFor(unit, mode.value)
+  graded.value = false
 }
 
 /* ------------------------------------------------------------------ */
@@ -150,6 +161,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
           {{ index + 1 }}/{{ tasks.length }}
         </span>
       </div>
+
+      <DrillSectionNav :unit="task.unit" @select="jumpToSection" />
     </header>
 
     <!-- The drill itself -->
