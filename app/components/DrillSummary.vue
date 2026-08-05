@@ -6,6 +6,9 @@ defineEmits<{ again: [] }>()
 
 const { settings } = useSettings()
 const { todayXp, streak, masteryFor } = useProgress()
+const { notify: notifyDonateNudge } = useDonateNudge()
+
+onMounted(notifyDonateNudge)
 
 const scored = computed(() => props.tasks.filter(task => task.result))
 

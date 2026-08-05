@@ -8,4 +8,5 @@ useSettings()
     <NuxtPage />
   </NuxtLayout>
   <AppIntro />
+  <AppDonateNudge />
 </template>

@@ -82,25 +82,37 @@ watchEffect(onCleanup => {
       <div class="relative w-full max-w-md text-center">
         <TheSeal :size="72" class="intro-seal mx-auto" />
 
-        <p class="stamp intro-line mt-6 text-ink-faint" style="--d: 0.35s">Made by</p>
-
         <h1
-          class="intro-line mt-1.5 font-serif text-[26px] leading-tight font-bold text-balance sm:text-3xl"
-          style="--d: 0.5s"
+          class="intro-line mt-5 font-serif text-3xl leading-tight font-bold sm:text-4xl"
+          style="--d: 0.3s"
         >
-          {{ AUTHOR.name }}
+          ProVision
         </h1>
 
-        <div class="ornament intro-line mt-5" style="--d: 0.7s">
+        <p class="intro-line mt-1.5 text-sm font-medium text-accent sm:text-base" style="--d: 0.42s">
+          Memorize the provision like a pro!
+        </p>
+
+        <div class="ornament intro-line mt-5" style="--d: 0.58s">
           <UiIcon name="target" :size="13" />
         </div>
 
-        <ul class="mt-5 flex flex-col items-center gap-2">
+        <!-- Author credit: present and legible, but visually a supporting
+             line under the app's own name and slogan, not the headline. -->
+        <p class="stamp intro-line mt-5 text-ink-faint" style="--d: 0.7s">Made by</p>
+        <p
+          class="intro-line mt-1 font-serif text-lg font-semibold text-balance"
+          style="--d: 0.82s"
+        >
+          {{ AUTHOR.name }}
+        </p>
+
+        <ul class="mt-4 flex flex-col items-center gap-2">
           <li
             v-for="(link, i) in AUTHOR.links"
             :key="link.id"
             class="intro-line w-full"
-            :style="{ '--d': `${0.85 + i * 0.12}s` }"
+            :style="{ '--d': `${0.95 + i * 0.12}s` }"
           >
             <a
               :href="link.href"
@@ -115,13 +127,9 @@ watchEffect(onCleanup => {
           </li>
         </ul>
 
-        <p class="intro-line mt-7 text-xs text-ink-faint" style="--d: 1.3s">
-          ProVision — learn the 1987 Constitution
-        </p>
-
         <button
-          class="intro-line mt-3 text-xs font-semibold text-accent underline-offset-4 hover:underline"
-          style="--d: 1.45s"
+          class="intro-line mt-6 text-xs font-semibold text-accent underline-offset-4 hover:underline"
+          style="--d: 1.55s"
           @click.stop="dismiss"
         >
           Enter
