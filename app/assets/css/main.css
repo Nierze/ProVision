@@ -1,0 +1,298 @@
+@import 'tailwindcss';
+
+/* Theme is a class on <html>, toggled by useSettings(). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ==========================================================================
+   1. BRAND SCALES — fixed values that mean the same thing in either theme.
+   ========================================================================== */
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* Royal — the judiciary purple. */
+  --color-royal-50: #f4f1fe;
+  --color-royal-100: #e9e3fd;
+  --color-royal-200: #d5c9fb;
+  --color-royal-300: #b7a2f6;
+  --color-royal-400: #9575ef;
+  --color-royal-500: #7b52e4;
+  --color-royal-600: #6835d2;
+  --color-royal-700: #5827b2;
+  --color-royal-800: #482291;
+  --color-royal-900: #3c2076;
+  --color-royal-950: #240f4e;
+
+  /* Brass — seals, laurels, "so close" states. */
+  --color-brass-200: #f2e3bb;
+  --color-brass-300: #e8cc8a;
+  --color-brass-400: #d9b45c;
+  --color-brass-500: #c79a2e;
+  --color-brass-600: #a87c1e;
+  --color-brass-700: #7f5c17;
+
+  /* Parchment — the provision itself is always printed on paper. */
+  --color-parchment: #fbf8f0;
+  --color-parchment-edge: #e6decb;
+  --color-parchment-ink: #1d1526;
+  --color-parchment-dim: #6b6153;
+
+  /* Marking colours. Fixed, not theme-flipping: they are only ever used on
+     parchment, which is cream in both themes. */
+  --color-mark-good: #17724f;
+  --color-mark-near: #8a5e0a;
+  --color-mark-bad: #b02338;
+
+  --radius-card: 14px;
+  --radius-page: 18px;
+
+  --ease-out-soft: cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+/* ==========================================================================
+   2. SEMANTIC TOKENS — these are the ones components use. They flip by theme,
+      so a component never needs to know which theme is on.
+   ========================================================================== */
+:root {
+  --c-surface: #f3f0f9;
+  --c-panel: #ffffff;
+  --c-panel-2: #faf8fd;
+  --c-panel-3: #efeaf7;
+  --c-line: rgb(36 15 78 / 0.11);
+  --c-line-2: rgb(36 15 78 / 0.22);
+  --c-text: #1f1430;
+  --c-text-dim: #5c4e72;
+  --c-text-faint: #8a7ca0;
+  --c-accent: #6835d2;
+  --c-accent-2: #5827b2;
+  --c-accent-soft: rgb(104 53 210 / 0.09);
+  --c-good: #1a8a5f;
+  --c-near: #9a6a0c;
+  --c-bad: #c02a44;
+  --c-shadow: 12px 30px -18px rgb(36 15 78 / 0.28);
+}
+
+.dark {
+  --c-surface: #0e0817;
+  --c-panel: #171024;
+  --c-panel-2: #211734;
+  --c-panel-3: #2c2043;
+  --c-line: rgb(255 255 255 / 0.09);
+  --c-line-2: rgb(255 255 255 / 0.2);
+  --c-text: #ede8f5;
+  --c-text-dim: #a99bc0;
+  --c-text-faint: #7a6c93;
+  --c-accent: #9575ef;
+  --c-accent-2: #b7a2f6;
+  --c-accent-soft: rgb(149 117 239 / 0.14);
+  --c-good: #34d399;
+  --c-near: #fbbf24;
+  --c-bad: #fb7185;
+  --c-shadow: 12px 34px -20px rgb(0 0 0 / 0.7);
+}
+
+/* `inline` makes utilities emit var(--c-…) directly, so a theme swap on <html>
+   repaints without Tailwind regenerating anything. */
+@theme inline {
+  --color-surface: var(--c-surface);
+  --color-panel: var(--c-panel);
+  --color-panel-2: var(--c-panel-2);
+  --color-panel-3: var(--c-panel-3);
+  --color-line: var(--c-line);
+  --color-line-2: var(--c-line-2);
+  --color-ink: var(--c-text);
+  --color-ink-dim: var(--c-text-dim);
+  --color-ink-faint: var(--c-text-faint);
+  --color-accent: var(--c-accent);
+  --color-accent-2: var(--c-accent-2);
+  --color-accent-soft: var(--c-accent-soft);
+  --color-good: var(--c-good);
+  --color-near: var(--c-near);
+  --color-bad: var(--c-bad);
+}
+
+/* ==========================================================================
+   3. BASE
+   ========================================================================== */
+@layer base {
+  html {
+    background: var(--c-surface);
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background: var(--c-surface);
+    color: var(--c-text);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior-y: none;
+    min-height: 100dvh;
+  }
+
+  button {
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  /* 16px is the threshold below which iOS Safari zooms on focus. */
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+    font-size: max(16px, 1em);
+    color: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: var(--c-accent-soft);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ==========================================================================
+   4. MOTIF — the small set of judiciary flourishes, defined once.
+   ========================================================================== */
+@layer components {
+  /* Fine diagonal engraving, like the guilloche on a certificate. */
+  .engraved {
+    background-image: repeating-linear-gradient(
+      135deg,
+      var(--c-accent-soft) 0 1px,
+      transparent 1px 7px
+    );
+  }
+
+  /* A parchment sheet. Provisions are always printed on one. */
+  .paper {
+    background: var(--color-parchment);
+    color: var(--color-parchment-ink);
+    border: 1px solid var(--color-parchment-edge);
+    border-radius: var(--radius-page);
+    box-shadow: 0 1px 0 rgb(0 0 0 / 0.03), 0 var(--c-shadow);
+  }
+
+  /* The red margin rule down a sheet of legal paper. */
+  .paper-ruled {
+    background-image: linear-gradient(
+      to right,
+      transparent calc(1.5rem - 1px),
+      rgb(104 53 210 / 0.16) calc(1.5rem - 1px),
+      rgb(104 53 210 / 0.16) 1.5rem,
+      transparent 1.5rem
+    );
+  }
+
+  /* Small-caps mono label — section numbers, article numerals, meta rows. */
+  .stamp {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* A rule with a lozenge in the middle, as on a title page. */
+  .ornament {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--c-text-faint);
+  }
+  .ornament::before,
+  .ornament::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--c-line-2), transparent);
+  }
+
+  /* Keyboard hint. */
+  .kbd {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1;
+    padding: 3px 5px;
+    border: 1px solid var(--c-line);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    background: var(--c-panel-2);
+    color: var(--c-text-dim);
+  }
+}
+
+/* ==========================================================================
+   5. UTILITIES
+   ========================================================================== */
+@utility safe-b {
+  padding-bottom: max(env(safe-area-inset-bottom), 0px);
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Used when a correct answer knits itself back into the sentence. */
+@keyframes settle {
+  from {
+    background: var(--c-accent-soft);
+    border-radius: 3px;
+  }
+  to {
+    background: transparent;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes nudge {
+  0%,
+  100% {
+    transform: none;
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+@utility animate-settle {
+  animation: settle 0.55s var(--ease-out-soft) both;
+}
+@utility animate-rise {
+  animation: rise 0.35s var(--ease-out-soft) both;
+}
+@utility animate-nudge {
+  animation: nudge 0.3s var(--ease-out-soft);
+}

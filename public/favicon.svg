@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <rect width="48" height="48" rx="10" fill="#240f4e"/>
+  <circle cx="24" cy="24" r="19" fill="none" stroke="#c79a2e" stroke-width="1.6"/>
+  <circle cx="24" cy="24" r="15.5" fill="none" stroke="#b7a2f6" stroke-width="1" opacity=".5"/>
+  <text x="24" y="24" text-anchor="middle" dominant-baseline="central" dy="-1"
+        fill="#b7a2f6" font-family="Georgia,serif" font-size="22" font-weight="600">§</text>
+</svg>

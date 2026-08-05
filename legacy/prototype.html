@@ -1,0 +1,973 @@
+
+
+Constitution drill · HTML
+<!DOCTYPE html>
+<html lang="en" data-theme="night">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Recall — 1987 Constitution</title>
+ 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+ 
+<style>
+/* ============================================================================
+   1. TOKENS
+   Every colour, size and radius lives here. Change a value once, the whole
+   app follows. `[data-theme]` swaps only the desk around the page — the page
+   itself always stays paper, because that is the thing you are reading.
+   ========================================================================== */
+:root{
+  /* desk (chrome) */
+  --desk:#0D1116;  --desk-2:#141A21;  --desk-3:#1D242D;
+  --edge:rgba(255,255,255,.09);  --edge-hi:rgba(255,255,255,.18);
+  --fg:#E7EDF4;  --fg-dim:#93A2B2;  --fg-faint:#5E6D7D;
+ 
+  /* page */
+  --page:#FAF8F2;  --page-edge:#E2DED2;  --text:#161A20;  --text-dim:#77705F;
+ 
+  /* meaning */
+  --blue:#0038A8;      /* recalled by you            */
+  --blue-lift:#4C82F0; /* same idea, on dark chrome  */
+  --red:#CE1126;       /* wrong                      */
+  --gold:#B07800;      /* nearly / hinted            */
+  --green:#12784B;     /* complete                   */
+ 
+  --r:10px;  --r-lg:16px;
+  --rail:264px;
+  --ease:cubic-bezier(.2,.7,.3,1);
+}
+[data-theme="day"]{
+  --desk:#DFDBD1;  --desk-2:#EBE7DE;  --desk-3:#F4F1EA;
+  --edge:rgba(0,0,0,.10);  --edge-hi:rgba(0,0,0,.20);
+  --fg:#1A1F27;  --fg-dim:#5C6675;  --fg-faint:#8B94A1;
+  --blue-lift:var(--blue);
+}
+ 
+/* ============================================================================
+   2. BASE
+   ========================================================================== */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--desk); color:var(--fg);
+  font:400 15px/1.5 Archivo,system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+button,input,select{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+kbd{
+  font:500 11px/1 "IBM Plex Mono",monospace; color:var(--fg-dim);
+  border:1px solid var(--edge); border-bottom-width:2px; border-radius:4px;
+  padding:3px 5px; background:var(--desk-3);
+}
+:focus-visible{outline:2px solid var(--blue-lift); outline-offset:3px; border-radius:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+ 
+/* ============================================================================
+   3. SHELL — top bar, rail, stage
+   ========================================================================== */
+.app{display:flex;flex-direction:column;min-height:100%}
+ 
+.topbar{
+  display:flex;align-items:center;gap:14px;
+  padding:12px 18px;border-bottom:1px solid var(--edge);
+  background:var(--desk-2); position:sticky; top:0; z-index:30;
+}
+.mark{display:flex;align-items:center;gap:10px;margin-right:auto;min-width:0}
+.mark .seal{
+  width:26px;height:26px;flex:none;border-radius:50%;
+  border:1.5px solid var(--blue-lift);
+  display:grid;place-items:center;
+  font:500 11px/1 "IBM Plex Mono",monospace;color:var(--blue-lift);
+}
+.mark h1{
+  margin:0;font-size:14px;font-weight:600;letter-spacing:.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.mark small{display:block;font-weight:400;font-size:11px;color:var(--fg-faint);letter-spacing:.08em;text-transform:uppercase}
+ 
+.tally{
+  font:500 12px/1 "IBM Plex Mono",monospace;color:var(--fg-dim);
+  border:1px solid var(--edge);border-radius:99px;padding:7px 12px;white-space:nowrap;
+}
+.tally b{color:var(--fg)}
+ 
+.icon-btn{
+  width:36px;height:36px;border-radius:var(--r);border:1px solid var(--edge);
+  display:grid;place-items:center;color:var(--fg-dim);flex:none;
+  transition:background .15s,color .15s;
+}
+.icon-btn:hover{background:var(--desk-3);color:var(--fg)}
+.icon-btn svg{width:17px;height:17px}
+ 
+.layout{display:flex;flex:1;min-height:0}
+ 
+/* --- rail ---------------------------------------------------------------- */
+.rail{
+  width:var(--rail);flex:none;border-right:1px solid var(--edge);
+  background:var(--desk-2);padding:18px 14px 40px;overflow-y:auto;
+}
+.rail h2{
+  margin:0 0 10px;font:500 10px/1 "IBM Plex Mono",monospace;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--fg-faint);
+}
+.rail section + section{margin-top:26px}
+ 
+.art{
+  display:flex;align-items:baseline;gap:9px;width:100%;
+  padding:8px 10px;border-radius:var(--r);text-align:left;
+  color:var(--fg-dim);transition:background .15s,color .15s;
+}
+.art:hover{background:var(--desk-3);color:var(--fg)}
+.art[aria-current="true"]{background:var(--desk-3);color:var(--fg)}
+.art .num{font:500 10px/1.6 "IBM Plex Mono",monospace;color:var(--fg-faint);flex:none;width:34px}
+.art[aria-current="true"] .num{color:var(--blue-lift)}
+.art .lbl{font-size:13.5px;font-weight:500}
+.art .sub{display:block;font-size:11px;font-weight:400;color:var(--fg-faint);line-height:1.4;margin-top:1px}
+ 
+.units{
+  display:flex;flex-wrap:wrap;gap:4px;
+  padding:8px 0 4px 44px;
+}
+.unit{
+  min-width:30px;padding:5px 6px;border-radius:6px;
+  font:500 11px/1 "IBM Plex Mono",monospace;color:var(--fg-faint);
+  border:1px solid transparent;transition:all .15s;
+}
+.unit:hover{background:var(--desk-3);color:var(--fg)}
+.unit[aria-current="true"]{background:var(--blue-lift);color:#fff}
+.unit.done{color:var(--green);border-color:color-mix(in srgb,var(--green) 45%,transparent)}
+.unit[aria-current="true"].done{background:var(--green);color:#fff;border-color:transparent}
+ 
+/* segmented controls */
+.seg{display:flex;border:1px solid var(--edge);border-radius:var(--r);overflow:hidden}
+.seg button{
+  flex:1;padding:8px 4px;font-size:12px;font-weight:500;color:var(--fg-dim);
+  transition:background .15s,color .15s;
+}
+.seg button + button{border-left:1px solid var(--edge)}
+.seg button:hover{background:var(--desk-3);color:var(--fg)}
+.seg button[aria-pressed="true"]{background:var(--blue-lift);color:#fff}
+.seg.danger button[aria-pressed="true"]{background:var(--red);color:#fff}
+ 
+.check-row{
+  display:flex;align-items:center;gap:9px;margin-top:12px;
+  font-size:12.5px;color:var(--fg-dim);cursor:pointer;
+}
+.check-row input{accent-color:var(--blue-lift);width:15px;height:15px;margin:0}
+ 
+/* --- stage --------------------------------------------------------------- */
+.stage{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;padding:26px 22px 60px}
+.stage-inner{width:100%;max-width:760px}
+ 
+.crumb{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;
+  font:500 11px/1 "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--fg-faint);
+}
+.crumb .here{color:var(--fg)}
+.crumb .dot{width:3px;height:3px;border-radius:50%;background:var(--fg-faint)}
+ 
+/* the page */
+.page{
+  background:var(--page);color:var(--text);
+  border:1px solid var(--page-edge);border-radius:var(--r-lg);
+  box-shadow:0 1px 0 rgba(0,0,0,.04),0 18px 44px -22px rgba(0,0,0,.55);
+  padding:clamp(22px,4vw,44px);
+  font-family:"Source Serif 4",Georgia,serif;
+  font-size:clamp(17px,1.35vw,19px);
+  line-height:2.45;
+}
+.provision + .provision{margin-top:1.1em}
+.provision{margin:0;text-align:left}
+.provision-mark{
+  display:inline-block;margin-right:.7em;padding:2px 7px;border-radius:5px;
+  background:rgba(0,56,168,.09);color:var(--blue);
+  font:500 11px/1.6 "IBM Plex Mono",monospace;letter-spacing:.04em;
+  vertical-align:.16em;white-space:nowrap;
+}
+ 
+/* the blank — the one place this app spends its personality */
+.blank{display:inline-block;white-space:nowrap}
+.blank input{
+  font:inherit;background:transparent;text-align:center;
+  border:0;border-bottom:1.5px solid var(--text-dim);
+  padding:0 .1em;margin:0 .08em;border-radius:2px 2px 0 0;
+  color:var(--blue);caret-color:var(--blue);outline:none;
+  transition:border-color .15s,background .15s;
+}
+.blank input::placeholder{color:transparent}
+.blank input:focus{border-bottom-color:var(--blue);background:rgba(0,56,168,.08)}
+.blank.wrong input{border-bottom-color:var(--red);color:var(--red);background:rgba(206,17,38,.07)}
+.blank.near  input{border-bottom-color:var(--gold);color:var(--gold);background:rgba(176,120,0,.09)}
+ 
+/* a solved word "sets" back into the text */
+.blank .set{color:var(--blue);font-weight:600;animation:settle .5s var(--ease) both}
+.blank .shown{color:var(--text-dim);font-style:italic}
+@keyframes settle{
+  0%{background:rgba(0,56,168,.22);border-radius:3px}
+  100%{background:transparent}
+}
+ 
+/* --- toolbar & status ----------------------------------------------------- */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;align-items:center}
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:10px 15px;border-radius:var(--r);border:1px solid var(--edge);
+  font-size:13.5px;font-weight:500;color:var(--fg-dim);
+  transition:background .15s,color .15s,border-color .15s,transform .1s;
+}
+.btn:hover{background:var(--desk-3);color:var(--fg)}
+.btn:active{transform:translateY(1px)}
+.btn svg{width:16px;height:16px;flex:none}
+.btn.primary{background:var(--blue-lift);border-color:transparent;color:#fff}
+.btn.primary:hover{filter:brightness(1.08);background:var(--blue-lift);color:#fff}
+.btn.ghost-danger:hover{color:var(--red);border-color:color-mix(in srgb,var(--red) 45%,transparent)}
+.btn.on{color:var(--blue-lift);border-color:color-mix(in srgb,var(--blue-lift) 50%,transparent)}
+.spacer{flex:1}
+ 
+.status{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  margin-top:16px;padding-top:14px;border-top:1px solid var(--edge);
+  font-size:13px;color:var(--fg-dim);min-height:38px;
+}
+.meter{flex:1;min-width:120px;height:3px;border-radius:2px;background:var(--edge);overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:var(--blue-lift);transition:width .4s var(--ease)}
+.meter.done i{background:var(--green)}
+.verdict{font-weight:500}
+.verdict.good{color:var(--green)}
+.verdict.bad{color:var(--red)}
+ 
+.keys{
+  margin-top:22px;font-size:12px;color:var(--fg-faint);
+  display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;
+}
+.keys span{display:inline-flex;align-items:center;gap:5px}
+ 
+/* --- mobile --------------------------------------------------------------- */
+.scrim{display:none}
+.rail-toggle{display:none}
+@media (max-width:880px){
+  .rail-toggle{display:grid}
+  .rail{
+    position:fixed;inset:0 auto 0 0;z-index:50;width:min(300px,86vw);
+    transform:translateX(-100%);transition:transform .25s var(--ease);
+    box-shadow:0 0 60px rgba(0,0,0,.5);
+  }
+  body.rail-open .rail{transform:none}
+  body.rail-open .scrim{display:block;position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.5)}
+  .stage{padding:18px 14px 48px}
+  .page{line-height:2.3}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+ 
+<body>
+<div class="app">
+ 
+  <header class="topbar">
+    <button class="icon-btn rail-toggle" id="railToggle" aria-label="Browse articles">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <div class="mark">
+      <div class="seal" aria-hidden="true">87</div>
+      <div>
+        <small>1987 Constitution</small>
+        <h1>Recall drill</h1>
+      </div>
+    </div>
+    <div class="tally" id="tally" aria-live="polite">Session <b>0</b> of <b>0</b></div>
+    <button class="icon-btn" id="themeBtn" aria-label="Switch between night and day desk">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </header>
+ 
+  <div class="layout">
+    <div class="scrim" id="scrim"></div>
+ 
+    <aside class="rail" id="rail">
+      <section>
+        <h2>Text</h2>
+        <nav id="nav"></nav>
+      </section>
+ 
+      <section>
+        <h2>Practise</h2>
+        <div class="seg" id="scopeSeg" role="group" aria-label="How much text to drill">
+          <button data-scope="unit">One section</button>
+          <button data-scope="article">Whole article</button>
+        </div>
+      </section>
+ 
+      <section>
+        <h2>Words removed</h2>
+        <div class="seg" id="ratioSeg" role="group" aria-label="Share of words blanked">
+          <button data-ratio="0.25">25%</button>
+          <button data-ratio="0.5">50%</button>
+          <button data-ratio="0.75">75%</button>
+        </div>
+        <div class="seg danger" id="ratioSeg2" role="group" aria-label="Blank every word" style="margin-top:6px">
+          <button data-ratio="1">Every word</button>
+        </div>
+        <label class="check-row">
+          <input type="checkbox" id="uniformWidth">
+          Hide word lengths
+        </label>
+        <label class="check-row">
+          <input type="checkbox" id="favourContent" checked>
+          Remove key words first
+        </label>
+      </section>
+    </aside>
+ 
+    <main class="stage">
+      <div class="stage-inner">
+ 
+        <div class="crumb" id="crumb"></div>
+ 
+        <article class="page" id="page" aria-label="Provision with blanks to fill in"></article>
+ 
+        <div class="toolbar">
+          <button class="btn primary" id="checkBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6"/></svg>
+            Check
+          </button>
+          <button class="btn" id="hintBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 18h6M10 22h4M12 2v1M4.2 6.2l.8.8M19.8 6.2l-.8.8M12 14a4 4 0 1 0-3-6.6A4 4 0 0 0 9 14c.6.6 1 1.4 1 2h4c0-.6.4-1.4 1-2z"/></svg>
+            Hint
+          </button>
+          <button class="btn" id="listenBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M16 9a4 4 0 0 1 0 6"/></svg>
+            <span id="listenLabel">Read aloud</span>
+          </button>
+          <button class="btn" id="shuffleBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4v6h6"/><path d="M20.5 13a8.5 8.5 0 1 1-2.2-7.9L21 8"/></svg>
+            New blanks
+          </button>
+          <div class="spacer"></div>
+          <button class="btn ghost-danger" id="revealBtn">Show answers</button>
+          <button class="btn" id="nextBtn">
+            Next
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13m-5-6 6 6-6 6"/></svg>
+          </button>
+        </div>
+ 
+        <div class="status">
+          <span class="verdict" id="verdict">Fill every blank, then press Check.</span>
+          <div class="meter" id="meter"><i></i></div>
+          <span id="counter" class="sr" aria-live="polite"></span>
+        </div>
+ 
+        <div class="keys">
+          <span><kbd>Space</kbd><kbd>Enter</kbd> next blank</span>
+          <span><kbd>⌘/Ctrl</kbd>+<kbd>Enter</kbd> check</span>
+          <span><kbd>Enter</kbd> after checking — next section</span>
+          <span><kbd>Alt</kbd>+<kbd>←</kbd><kbd>→</kbd> move section</span>
+        </div>
+ 
+      </div>
+    </main>
+  </div>
+</div>
+ 
+<script>
+/* ============================================================================
+   1. CORPUS
+   The only place text lives. To add an article: append one object here.
+   `units` are the drillable chunks — a section, or a clause for short texts.
+   A unit beginning with "Section N." is labelled automatically.
+   ========================================================================== */
+const CORPUS = [
+{
+  id:"preamble", num:"—", title:"Preamble", sub:"", unitNoun:"Clause",
+  units:[
+    "We, the sovereign Filipino people,",
+    "imploring the aid of Almighty God,",
+    "in order to build a just and humane society,",
+    "and establish a Government that shall embody our ideals and aspirations,",
+    "promote the common good, conserve and develop our patrimony,",
+    "and secure to ourselves and our posterity,",
+    "the blessings of independence and democracy",
+    "under the rule of law and a regime of truth, justice, freedom, love, equality, and peace,",
+    "do ordain and promulgate this Constitution."
+  ]
+},
+{
+  id:"art1", num:"I", title:"Article I", sub:"National Territory", unitNoun:"Clause",
+  units:[
+    "The national territory comprises the Philippine archipelago,",
+    "with all the islands and waters embraced therein,",
+    "and all other territories over which the Philippines has sovereignty or jurisdiction,",
+    "consisting of its terrestrial, fluvial and aerial domains,",
+    "including its territorial sea, the seabed, the subsoil, the insular shelves, and other submarine areas.",
+    "The waters around, between, and connecting the islands of the archipelago,",
+    "regardless of their breadth and dimensions,",
+    "form part of the internal waters of the Philippines."
+  ]
+},
+{
+  id:"art2", num:"II", title:"Article II", sub:"Declaration of Principles and State Policies",
+  units:[
+    "Section 1. The Philippines is a democratic and republican State. Sovereignty resides in the people and all government authority emanates from them.",
+    "Section 2. The Philippines renounces war as an instrument of national policy, adopts the generally accepted principles of international law as part of the law of the land and adheres to the policy of peace, equality, justice, freedom, cooperation, and amity with all nations.",
+    "Section 3. Civilian authority is, at all times, supreme over the military. The Armed Forces of the Philippines is the protector of the people and the State. Its goal is to secure the sovereignty of the State and the integrity of the national territory.",
+    "Section 4. The prime duty of the Government is to serve and protect the people. The Government may call upon the people to defend the State and, in the fulfillment thereof, all citizens may be required, under conditions provided by law, to render personal, military or civil service.",
+    "Section 5. The maintenance of peace and order, the protection of life, liberty, and property, and promotion of the general welfare are essential for the enjoyment by all the people of the blessings of democracy.",
+    "Section 6. The separation of Church and State shall be inviolable.",
+    "Section 7. The State shall pursue an independent foreign policy. In its relations with other states, the paramount consideration shall be national sovereignty, territorial integrity, national interest, and the right to self-determination.",
+    "Section 8. The Philippines, consistent with the national interest, adopts and pursues a policy of freedom from nuclear weapons in its territory.",
+    "Section 9. The State shall promote a just and dynamic social order that will ensure the prosperity and independence of the nation and free the people from poverty through policies that provide adequate social services, promote full employment, a rising standard of living, and an improved quality of life for all.",
+    "Section 10. The State shall promote social justice in all phases of national development.",
+    "Section 11. The State values the dignity of every human person and guarantees full respect for human rights.",
+    "Section 12. The State recognizes the sanctity of family life and shall protect and strengthen the family as a basic autonomous social institution. It shall equally protect the life of the mother and the life of the unborn from conception. The natural and primary right and duty of parents in the rearing of the youth for civic efficiency and the development of moral character shall receive the support of the Government.",
+    "Section 13. The State recognizes the vital role of the youth in nation-building and shall promote and protect their physical, moral, spiritual, intellectual, and social well-being. It shall inculcate in the youth patriotism and nationalism, and encourage their involvement in public and civic affairs.",
+    "Section 14. The State recognizes the role of women in nation-building, and shall ensure the fundamental equality before the law of women and men.",
+    "Section 15. The State shall protect and promote the right to health of the people and instill health consciousness among them.",
+    "Section 16. The State shall protect and advance the right of the people to a balanced and healthful ecology in accord with the rhythm and harmony of nature.",
+    "Section 17. The State shall give priority to education, science and technology, arts, culture, and sports to foster patriotism and nationalism, accelerate social progress, and promote total human liberation and development.",
+    "Section 18. The State affirms labor as a primary social economic force. It shall protect the rights of workers and promote their welfare.",
+    "Section 19. The State shall develop a self-reliant and independent national economy effectively controlled by Filipinos.",
+    "Section 20. The State recognizes the indispensable role of the private sector, encourages private enterprise, and provides incentives to needed investments.",
+    "Section 21. The State shall promote comprehensive rural development and agrarian reform.",
+    "Section 22. The State recognizes and promotes the rights of indigenous cultural communities within the framework of national unity and development.",
+    "Section 23. The State shall encourage non-governmental, community-based, or sectoral organizations that promote the welfare of the nation.",
+    "Section 24. The State recognizes the vital role of communication and information in nation-building.",
+    "Section 25. The State shall ensure the autonomy of local governments.",
+    "Section 26. The State shall guarantee equal access to opportunities for public service and prohibit political dynasties as may be defined by law.",
+    "Section 27. The State shall maintain honesty and integrity in the public service and take positive and effective measures against graft and corruption.",
+    "Section 28. Subject to reasonable conditions prescribed by law, the State adopts and implements a policy of full public disclosure of all its transactions involving public interest."
+  ]
+},
+{
+  id:"art3", num:"III", title:"Article III", sub:"Bill of Rights",
+  units:[
+    "Section 1. No person shall be deprived of life, liberty, or property without due process of law, nor shall any person be denied the equal protection of the laws.",
+    "Section 2. The right of the people to be secure in their persons, houses, papers, and effects against unreasonable searches and seizures of whatever nature and for any purpose shall be inviolable, and no search warrant or warrant of arrest shall issue except upon probable cause to be determined personally by the judge after examination under oath or affirmation of the complainant and the witnesses he may produce, and particularly describing the place to be searched and the persons or things to be seized.",
+    "Section 3. (1) The privacy of communication and correspondence shall be inviolable except upon lawful order of the court, or when public safety or order requires otherwise, as prescribed by law. (2) Any evidence obtained in violation of this or the preceding section shall be inadmissible for any purpose in any proceeding.",
+    "Section 4. No law shall be passed abridging the freedom of speech, of expression, or of the press, or the right of the people peaceably to assemble and petition the government for redress of grievances.",
+    "Section 5. No law shall be made respecting an establishment of religion, or prohibiting the free exercise thereof. The free exercise and enjoyment of religious profession and worship, without discrimination or preference, shall forever be allowed. No religious test shall be required for the exercise of civil or political rights.",
+    "Section 6. The liberty of abode and of changing the same within the limits prescribed by law shall not be impaired except upon lawful order of the court. Neither shall the right to travel be impaired except in the interest of national security, public safety, or public health, as may be provided by law.",
+    "Section 7. The right of the people to information on matters of public concern shall be recognized. Access to official records, and to documents and papers pertaining to official acts, transactions, or decisions, as well as to government research data used as basis for policy development, shall be afforded the citizen, subject to such limitations as may be provided by law.",
+    "Section 8. The right of the people, including those employed in the public and private sectors, to form unions, associations, or societies for purposes not contrary to law shall not be abridged.",
+    "Section 9. Private property shall not be taken for public use without just compensation.",
+    "Section 10. No law impairing the obligation of contracts shall be passed.",
+    "Section 11. Free access to the courts and quasi-judicial bodies and adequate legal assistance shall not be denied to any person by reason of poverty.",
+    "Section 12. (1) Any person under investigation for the commission of an offense shall have the right to be informed of his right to remain silent and to have competent and independent counsel preferably of his own choice. If the person cannot afford the services of counsel, he must be provided with one. These rights cannot be waived except in writing and in the presence of counsel. (2) No torture, force, violence, threat, intimidation, or any other means which vitiate the free will shall be used against him. Secret detention places, solitary, incommunicado, or other similar forms of detention are prohibited. (3) Any confession or admission obtained in violation of this or Section 17 hereof shall be inadmissible in evidence against him. (4) The law shall provide for penal and civil sanctions for violations of this section as well as compensation to the rehabilitation of victims of torture or similar practices, and their families.",
+    "Section 13. All persons, except those charged with offenses punishable by reclusion perpetua when evidence of guilt is strong, shall, before conviction, be bailable by sufficient sureties, or be released on recognizance as may be provided by law. The right to bail shall not be impaired even when the privilege of the writ of habeas corpus is suspended. Excessive bail shall not be required.",
+    "Section 14. (1) No person shall be held to answer for a criminal offense without due process of law. (2) In all criminal prosecutions, the accused shall be presumed innocent until the contrary is proved, and shall enjoy the right to be heard by himself and counsel, to be informed of the nature and cause of the accusation against him, to have a speedy, impartial, and public trial, to meet the witnesses face to face, and to have compulsory process to secure the attendance of witnesses and the production of evidence in his behalf. However, after arraignment, trial may proceed notwithstanding the absence of the accused: Provided, that he has been duly notified and his failure to appear is unjustifiable.",
+    "Section 15. The privilege of the writ of habeas corpus shall not be suspended except in cases of invasion or rebellion, when the public safety requires it.",
+    "Section 16. All persons shall have the right to a speedy disposition of their cases before all judicial, quasi-judicial, or administrative bodies.",
+    "Section 17. No person shall be compelled to be a witness against himself.",
+    "Section 18. (1) No person shall be detained solely by reason of his political beliefs and aspirations. (2) No involuntary servitude in any form shall exist except as a punishment for a crime whereof the party shall have been duly convicted.",
+    "Section 19. (1) Excessive fines shall not be imposed, nor cruel, degrading or inhuman punishment inflicted. Neither shall death penalty be imposed, unless, for compelling reasons involving heinous crimes, the Congress hereafter provides for it. Any death penalty already imposed shall be reduced to reclusion perpetua. (2) The employment of physical, psychological, or degrading punishment against any prisoner or detainee or the use of substandard or inadequate penal facilities under subhuman conditions shall be dealt with by law.",
+    "Section 20. No person shall be imprisoned for debt or non-payment of a poll tax.",
+    "Section 21. No person shall be twice put in jeopardy of punishment for the same offense. If an act is punished by a law and an ordinance, conviction or acquittal under either shall constitute a bar to another prosecution for the same act.",
+    "Section 22. No ex post facto law or bill of attainder shall be enacted."
+  ]
+},
+{
+  id:"art6", num:"VI", title:"Article VI", sub:"Legislative Department",
+  units:[
+    "Section 1. The legislative power shall be vested in the Congress of the Philippines which shall consist of a Senate and a House of Representatives, except to the extent reserved to the people by the provision on initiative and referendum.",
+    "Section 2. The Senate shall be composed of twenty-four Senators who shall be elected at large by the qualified voters of the Philippines, as may be provided by law.",
+    "Section 3. No person shall be a Senator unless he is a natural-born citizen of the Philippines and, on the day of the election, is at least thirty-five years of age, able to read and write, a registered voter, and a resident of the Philippines for not less than two years immediately preceding the day of the election.",
+    "Section 4. The term of office of the Senators shall be six years and shall commence, unless otherwise provided by law, at noon on the thirtieth day of June next following their election. No Senator shall serve for more than two consecutive terms. Voluntary renunciation of the office for any length of time shall not be considered as an interruption in the continuity of his service for the full term of which he was elected.",
+    "Section 5. (1) The House of Representatives shall be composed of not more than two hundred and fifty members, unless otherwise fixed by law, who shall be elected from legislative districts apportioned among the provinces, cities, and the Metropolitan Manila area in accordance with the number of their respective inhabitants, and on the basis of a uniform and progressive ratio, and those who, as provided by law, shall be elected through a party-list system of registered national, regional, and sectoral parties or organizations. (2) The party-list representatives shall constitute twenty per centum of the total number of representatives including those under the party list.",
+    "Section 6. No person shall be a Member of the House of Representatives unless he is a natural-born citizen of the Philippines and, on the day of the election, is at least twenty-five years of age, able to read and write, and, except the party-list representatives, a registered voter in the district in which he shall be elected, and a resident thereof for a period of not less than one year immediately preceding the day of the election.",
+    "Section 7. The Members of the House of Representatives shall be elected for a term of three years which shall begin, unless otherwise provided by law, at noon on the thirtieth day of June next following their election. No Member of the House of Representatives shall serve for more than three consecutive terms.",
+    "Section 8. Unless otherwise provided by law, the regular election of the Senators and the Members of the House of Representatives shall be held on the second Monday of May.",
+    "Section 9. In case of vacancy in the Senate or in the House of Representatives, a special election may be called to fill such vacancy in the manner prescribed by law, but the Senator or Member of the House of Representatives thus elected shall serve only for the unexpired term.",
+    "Section 10. The salaries of Senators and Members of the House of Representatives shall be determined by law. No increase in said compensation shall take effect until after the expiration of the full term of all the Members of the Senate and the House of Representatives approving such increase.",
+    "Section 32. The Congress shall, as early as possible, provide for a system of initiative and referendum, and the exceptions therefrom, whereby the people can directly propose and enact laws or approve or reject any act or law or part thereof passed by the Congress or local legislative body after the registration of a petition therefor signed by at least ten per centum of the total number of registered voters, of which every legislative district must be represented by at least three per centum of the registered voters thereof."
+  ]
+}
+];
+ 
+/* Grammatical glue. When "Remove key words first" is on, these are blanked
+   last, so low percentages hide the words that actually carry the rule. */
+const GLUE = new Set(("a an the and or of to in on at by for from with as is are was were "+
+  "be been being it its their his he this that these those such which who whom what "+
+  "not no nor any all other others there then than so if but upon into within without "+
+  "under over after before out up down more most less least each every both same").split(" "));
+ 
+/* ============================================================================
+   2. HELPERS
+   ========================================================================== */
+const $  = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+ 
+function el(tag, cls, text){
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text != null) n.textContent = text;
+  return n;
+}
+ 
+/** Strip case, accents and punctuation so "Twenty-four" === "twenty four". */
+const norm = s => s.toLowerCase().normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+ 
+/** Edit distance, capped — used only to tell "nearly" from "wrong". */
+function distance(a, b){
+  if (Math.abs(a.length - b.length) > 2) return 9;
+  let prev = [...Array(b.length + 1).keys()];
+  for (let i = 1; i <= a.length; i++){
+    const row = [i];
+    for (let j = 1; j <= b.length; j++){
+      row[j] = Math.min(prev[j] + 1, row[j-1] + 1, prev[j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+    }
+    prev = row;
+  }
+  return prev[b.length];
+}
+ 
+function shuffle(arr){
+  for (let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+ 
+/* ============================================================================
+   3. TEXT MODEL
+   A unit is split into tokens once. A token holds the word, the punctuation
+   glued to it, and whatever the learner has done with it.
+   ========================================================================== */
+ 
+/** "Section 3. Civilian authority…" -> { label:"Section 3", body:"Civilian…" } */
+function splitUnit(raw, index, unitNoun){
+  const m = raw.match(/^Section (\d+)\.\s*/);
+  if (m) return { label:`Section ${m[1]}`, tag:`§${m[1]}`, body: raw.slice(m[0].length) };
+  return { label:`${unitNoun || "Part"} ${index + 1}`, tag:`${index + 1}`, body: raw };
+}
+ 
+function tokenize(text){
+  return text.split(/\s+/).filter(Boolean).map(chunk => {
+    const m = chunk.match(/^([^\p{L}\p{N}]*)(.*?)([^\p{L}\p{N}]*)$/u);
+    return {
+      lead:  m[1],
+      word:  m[2],
+      trail: m[3],
+      blank: false,     // is this one hidden?
+      value: "",        // what the learner typed
+      state: "idle",    // idle | correct | near | wrong | shown
+      hint:  0,         // letters given away
+      node:  null, input: null
+    };
+  });
+}
+ 
+/** Choose which tokens to hide. Content words go first when `favourContent`. */
+function hideWords(tokens, ratio, favourContent){
+  tokens.forEach(t => Object.assign(t, { blank:false, value:"", state:"idle", hint:0 }));
+ 
+  // "(1)" and "(2)" are paragraph markers, not words worth recalling.
+  const candidates = tokens.filter(t => t.word.length > 0 && !/^\(\d+\)$/.test(t.lead + t.word + t.trail));
+  const pool = shuffle(candidates.slice());
+  if (favourContent && ratio < 1){
+    pool.sort((a, b) => weight(b) - weight(a)); // stable: keeps the shuffle inside ties
+  }
+  const n = Math.max(1, Math.round(pool.length * ratio));
+  pool.slice(0, n).forEach(t => t.blank = true);
+}
+const weight = t => GLUE.has(t.word.toLowerCase()) ? 0 : (t.word.length > 6 ? 2 : 1);
+ 
+/* ============================================================================
+   4. STATE
+   ========================================================================== */
+const state = {
+  articleIndex: 0,
+  unitIndex: 0,
+  scope: "unit",          // "unit" | "article"
+  ratio: 0.5,
+  favourContent: true,
+  uniformWidth: false,
+  checked: false,
+  blocks: [],             // [{ label, tag, body, tokens }]
+  mastered: new Set(),    // "articleIndex:unitIndex" — this session only
+  session: { asked: 0, right: 0 }
+};
+ 
+const article = () => CORPUS[state.articleIndex];
+const unitsOf = a => a.units.map((raw, i) => splitUnit(raw, i, a.unitNoun));
+const blanks  = () => state.blocks.flatMap(b => b.tokens).filter(t => t.blank);
+const spokenText = () => state.blocks.map(b => b.body).join(" ");
+ 
+/* ============================================================================
+   5. BUILD & RENDER
+   ========================================================================== */
+function load(){
+  stopSpeech();
+  const a = article();
+  const units = unitsOf(a);
+  const chosen = state.scope === "article" ? units : [units[state.unitIndex]];
+ 
+  state.blocks = chosen.map(u => ({ ...u, tokens: tokenize(u.body) }));
+  state.blocks.forEach(b => hideWords(b.tokens, state.ratio, state.favourContent));
+  state.checked = false;
+ 
+  renderPage();
+  renderNav();
+  renderCrumb();
+  setVerdict("Fill every blank, then press Check.");
+  updateMeter();
+  if (booted) firstOpenBlank()?.focus({ preventScroll:true });
+}
+let booted = false; // don't grab focus (or open the mobile keyboard) on first paint
+ 
+function renderPage(){
+  const page = $("#page");
+  page.innerHTML = "";
+ 
+  state.blocks.forEach(block => {
+    const p = el("p", "provision");
+    if (state.scope === "article" || /^Section/.test(block.label)){
+      p.append(el("span", "provision-mark", block.label));
+    }
+    block.tokens.forEach(t => {
+      p.append(tokenNode(t));
+      p.append(document.createTextNode(" "));
+    });
+    page.append(p);
+  });
+}
+ 
+function tokenNode(t){
+  if (!t.blank){
+    return document.createTextNode(t.lead + t.word + t.trail);
+  }
+  const span = el("span", "blank");
+  t.node = span;
+  if (t.lead)  span.append(document.createTextNode(t.lead));
+  span.append(el("span", "slot"));
+  if (t.trail) span.append(document.createTextNode(t.trail));
+  paint(t);
+  return span;
+}
+ 
+/** Redraw a single blank. Solved words become plain text, so the sentence
+    visibly knits itself back together as you get things right. */
+function paint(t){
+  const slot = $(".slot", t.node);
+  slot.innerHTML = "";
+  t.node.classList.remove("wrong", "near");
+ 
+  if (t.state === "correct" || t.state === "shown"){
+    slot.append(el("span", t.state === "correct" ? "set" : "shown", t.word));
+    t.input = null;
+    return;
+  }
+ 
+  const input = el("input");
+  input.type = "text";
+  input.value = t.value;
+  input.autocomplete = "off";
+  input.spellcheck = false;
+  input.setAttribute("aria-label", "missing word");
+  input.style.width = (state.uniformWidth ? 8 : Math.max(t.word.length, 3) + 1) + "ch";
+ 
+  if (t.state === "wrong") t.node.classList.add("wrong");
+  if (t.state === "near")  t.node.classList.add("near");
+ 
+  input.addEventListener("input", () => {
+    t.value = input.value;
+    if (t.state !== "idle"){ t.state = "idle"; t.node.classList.remove("wrong", "near"); }
+  });
+  input.addEventListener("keydown", e => onBlankKey(e, t));
+ 
+  t.input = input;
+  slot.append(input);
+}
+ 
+function renderNav(){
+  const nav = $("#nav");
+  nav.innerHTML = "";
+ 
+  CORPUS.forEach((a, ai) => {
+    const btn = el("button", "art");
+    btn.setAttribute("aria-current", ai === state.articleIndex);
+    btn.append(el("span", "num", a.num));
+    const label = el("span", "lbl", a.title);
+    if (a.sub) label.append(el("span", "sub", a.sub));
+    btn.append(label);
+    btn.onclick = () => { state.articleIndex = ai; state.unitIndex = 0; load(); closeRail(); };
+    nav.append(btn);
+ 
+    if (ai !== state.articleIndex) return;
+ 
+    const list = el("div", "units");
+    unitsOf(a).forEach((u, ui) => {
+      const b = el("button", "unit", u.tag);
+      b.title = u.label;
+      b.setAttribute("aria-current", state.scope === "unit" && ui === state.unitIndex);
+      if (state.mastered.has(`${ai}:${ui}`)) b.classList.add("done");
+      b.onclick = () => { state.unitIndex = ui; setScope("unit"); closeRail(); };
+      list.append(b);
+    });
+    nav.append(list);
+  });
+}
+ 
+function renderCrumb(){
+  const a = article();
+  const here = state.scope === "article"
+    ? `${a.title} — complete`
+    : unitsOf(a)[state.unitIndex].label;
+  $("#crumb").innerHTML = "";
+  $("#crumb").append(
+    el("span", "", a.sub || a.title),
+    el("span", "dot"),
+    el("span", "here", here)
+  );
+}
+ 
+/* ============================================================================
+   6. ACTIONS
+   ========================================================================== */
+function check(){
+  const list = blanks().filter(t => t.state !== "shown");
+  if (!list.length) return;
+ 
+  let right = 0;
+  list.forEach(t => {
+    const typed = norm(t.value);
+    const truth = norm(t.word);
+    if (!typed)                              t.state = "wrong";
+    else if (typed === truth)              { t.state = "correct"; right++; }
+    else if (truth.length >= 4 && distance(typed, truth) <= (truth.length >= 8 ? 2 : 1))
+                                             t.state = "near";
+    else                                     t.state = "wrong";
+    paint(t);
+  });
+ 
+  state.checked = true;
+  state.session.asked += list.length;
+  state.session.right += right;
+  renderTally();
+  updateMeter();
+ 
+  const missed = list.length - right;
+  const near = list.filter(t => t.state === "near").length;
+ 
+  if (!missed){
+    if (state.scope === "unit") state.mastered.add(`${state.articleIndex}:${state.unitIndex}`);
+    renderNav();
+    setVerdict(`All ${right} restored. Press Enter for the next section.`, "good");
+  } else if (near){
+    setVerdict(`${right} of ${list.length} right — ${near} off by a letter or two.`, "bad");
+  } else {
+    setVerdict(`${right} of ${list.length} right. Fix the red ones and check again.`, "bad");
+  }
+ 
+  (list.find(t => t.state !== "correct") || {}).input?.focus({ preventScroll:true });
+}
+ 
+/** Reveal one more letter of the blank you are standing on. */
+function hint(){
+  const t = focusedToken() || firstOpenBlank()?._token;
+  if (!t) return;
+  t.hint = Math.min(t.hint + 1, t.word.length);
+  t.value = t.word.slice(0, t.hint);
+  t.state = "idle";
+  paint(t);
+  const i = t.input;
+  if (i){ i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
+  if (t.hint >= t.word.length) setVerdict("That one is given — it will not count as recalled.");
+}
+ 
+function revealAll(){
+  blanks().forEach(t => { if (t.state !== "correct"){ t.state = "shown"; paint(t); } });
+  state.checked = true;
+  setVerdict("Answers shown. Press New blanks to try the same text again.");
+  updateMeter();
+}
+ 
+function reshuffle(){
+  state.blocks.forEach(b => hideWords(b.tokens, state.ratio, state.favourContent));
+  state.checked = false;
+  renderPage();
+  setVerdict("New blanks. Same text.");
+  updateMeter();
+  firstOpenBlank()?.focus({ preventScroll:true });
+}
+ 
+function move(step){
+  if (state.scope === "article"){
+    const next = state.articleIndex + step;
+    if (next < 0 || next >= CORPUS.length) return;
+    state.articleIndex = next; state.unitIndex = 0;
+  } else {
+    const total = article().units.length;
+    let i = state.unitIndex + step;
+    if (i >= total){                                   // roll into the next article
+      if (state.articleIndex + 1 >= CORPUS.length) return;
+      state.articleIndex++; i = 0;
+    } else if (i < 0){
+      if (state.articleIndex === 0) return;
+      state.articleIndex--; i = article().units.length - 1;
+    }
+    state.unitIndex = i;
+  }
+  load();
+}
+ 
+function setScope(scope){
+  state.scope = scope;
+  $$("#scopeSeg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.scope === scope));
+  load();
+}
+ 
+function setRatio(r){
+  state.ratio = r;
+  $$("#ratioSeg button, #ratioSeg2 button")
+    .forEach(b => b.setAttribute("aria-pressed", Number(b.dataset.ratio) === r));
+  load();
+}
+ 
+/* ============================================================================
+   7. FEEDBACK STRIP
+   ========================================================================== */
+function setVerdict(msg, tone){
+  const v = $("#verdict");
+  v.textContent = msg;
+  v.className = "verdict" + (tone ? " " + tone : "");
+}
+ 
+function updateMeter(){
+  const list = blanks();
+  const done = list.filter(t => t.state === "correct").length;
+  const pct = list.length ? (done / list.length) * 100 : 0;
+  $("#meter i").style.width = pct + "%";
+  $("#meter").classList.toggle("done", pct === 100);
+  $("#counter").textContent = `${done} of ${list.length} blanks filled correctly`;
+}
+ 
+function renderTally(){
+  const { right, asked } = state.session;
+  $("#tally").innerHTML = `Session <b>${right}</b> of <b>${asked}</b>`;
+}
+ 
+/* ============================================================================
+   8. KEYBOARD
+   ========================================================================== */
+const openInputs   = () => blanks().map(t => t.input).filter(Boolean);
+const firstOpenBlank = () => {
+  const t = blanks().find(t => t.input);
+  if (t) t.input._token = t;
+  return t?.input;
+};
+const focusedToken = () => blanks().find(t => t.input && t.input === document.activeElement);
+ 
+function step(from, dir){
+  const inputs = openInputs();
+  const i = inputs.indexOf(from);
+  const next = inputs[i + dir];
+  if (next) next.focus();
+  else if (dir > 0) $("#checkBtn").focus();
+}
+ 
+function onBlankKey(e, t){
+  const input = t.input;
+  if (e.key === " "){ e.preventDefault(); step(input, 1); return; }
+ 
+  if (e.key === "Enter" && !e.metaKey && !e.ctrlKey){
+    e.preventDefault();
+    const inputs = openInputs();
+    if (inputs.indexOf(input) === inputs.length - 1) check();
+    else step(input, 1);
+    return;
+  }
+  // Arrows only leave the field once the caret is already at the edge.
+  if (e.key === "ArrowLeft" && input.selectionStart === 0){ e.preventDefault(); step(input, -1); }
+  if (e.key === "ArrowRight" && input.selectionEnd === input.value.length){ e.preventDefault(); step(input, 1); }
+}
+ 
+document.addEventListener("keydown", e => {
+  const typing = /^(INPUT|TEXTAREA)$/.test(document.activeElement?.tagName);
+ 
+  if ((e.metaKey || e.ctrlKey) && e.key === "Enter"){ e.preventDefault(); check(); return; }
+  if (e.altKey && e.key === "ArrowRight"){ e.preventDefault(); move(1);  return; }
+  if (e.altKey && e.key === "ArrowLeft") { e.preventDefault(); move(-1); return; }
+  if (e.key === "Escape"){ closeRail(); document.activeElement.blur?.(); return; }
+ 
+  // Once everything is graded, Enter carries you forward.
+  if (e.key === "Enter" && state.checked && !openInputs().length && !typing){
+    e.preventDefault(); move(1);
+  }
+});
+ 
+/* ============================================================================
+   9. READ ALOUD
+   ========================================================================== */
+let speaking = false;
+ 
+function toggleSpeech(){
+  if (!("speechSynthesis" in window)){
+    setVerdict("This browser has no speech voices available.");
+    return;
+  }
+  if (speaking) return stopSpeech();
+ 
+  const u = new SpeechSynthesisUtterance(spokenText());
+  u.rate = .85;
+  u.onend = u.onerror = stopSpeech;
+  speechSynthesis.speak(u);
+  speaking = true;
+  $("#listenLabel").textContent = "Stop";
+  $("#listenBtn").classList.add("on");
+}
+ 
+function stopSpeech(){
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+  speaking = false;
+  $("#listenLabel").textContent = "Read aloud";
+  $("#listenBtn").classList.remove("on");
+}
+ 
+/* ============================================================================
+   10. WIRING
+   ========================================================================== */
+const openRail  = () => document.body.classList.add("rail-open");
+const closeRail = () => document.body.classList.remove("rail-open");
+ 
+$("#checkBtn").onclick   = check;
+$("#hintBtn").onclick    = hint;
+$("#revealBtn").onclick  = revealAll;
+$("#shuffleBtn").onclick = reshuffle;
+$("#listenBtn").onclick  = toggleSpeech;
+$("#nextBtn").onclick    = () => move(1);
+$("#railToggle").onclick = openRail;
+$("#scrim").onclick      = closeRail;
+ 
+$("#themeBtn").onclick = () => {
+  const root = document.documentElement;
+  root.dataset.theme = root.dataset.theme === "night" ? "day" : "night";
+};
+ 
+$$("#scopeSeg button").forEach(b => b.onclick = () => setScope(b.dataset.scope));
+$$("#ratioSeg button, #ratioSeg2 button")
+  .forEach(b => b.onclick = () => setRatio(Number(b.dataset.ratio)));
+ 
+$("#uniformWidth").onchange = e => { state.uniformWidth = e.target.checked; renderPage(); };
+$("#favourContent").onchange = e => { state.favourContent = e.target.checked; reshuffle(); };
+ 
+window.addEventListener("beforeunload", stopSpeech);
+ 
+/* go */
+setScope(state.scope);
+setRatio(state.ratio);
+renderTally();
+booted = true;
+</script>
+</body>
+</html>
+ 
+
+
