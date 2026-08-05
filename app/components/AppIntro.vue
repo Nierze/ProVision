@@ -1,22 +1,30 @@
 <script setup lang="ts">
 /**
- * First-visit title card. Shows once per device, then never again.
+ * Title card. Shows on a first visit and again on any load more than
+ * REPEAT_AFTER since the last one, so a working session isn't interrupted but
+ * coming back later still gets the intro.
  * Every animated property is transform/opacity so the whole sequence stays on
  * the compositor and never triggers layout.
  */
 import { AUTHOR } from '~/data/author'
 
-const KEY = 'provision.intro.v1'
+const KEY = 'provision.intro.v2'
+const REPEAT_AFTER = 10 * 60 * 1000
 
 const visible = ref(false)
 let timer: ReturnType<typeof setTimeout> | undefined
+
+/** Stamped when the card is shown, not when dismissed, so the window is
+ *  measured from one appearance to the next however long it stays up. */
+function stamp() {
+  writeJson(KEY, { at: Date.now() })
+}
 
 function dismiss() {
   if (!visible.value) return
   visible.value = false
   clearTimeout(timer)
   window.removeEventListener('keydown', onKey)
-  writeJson(KEY, { seen: true })
 }
 
 function onKey(event: KeyboardEvent) {
@@ -24,9 +32,12 @@ function onKey(event: KeyboardEvent) {
 }
 
 onMounted(() => {
-  if (readJson(KEY, { seen: false }).seen) return
+  const { at } = readJson(KEY, { at: 0 })
+  // A clock that jumped backwards shouldn't lock the card out indefinitely.
+  if (at && at <= Date.now() && Date.now() - at < REPEAT_AFTER) return
 
   visible.value = true
+  stamp()
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   timer = setTimeout(dismiss, reduced ? 1400 : 4600)
   window.addEventListener('keydown', onKey)

@@ -103,7 +103,7 @@ const greeting = computed(() => {
     <!-- Pick a drill -->
     <section class="animate-rise" style="animation-delay: 0.06s">
       <h2 class="stamp mb-2 text-ink-faint">Practise a particular way</h2>
-      <ul class="grid gap-2 sm:grid-cols-2">
+      <ul class="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <li v-for="drill in MODES" :key="drill.id">
           <UiCard :to="`/drill?scope=review&mode=${drill.id}`" pad="sm" class="group h-full">
             <div class="flex items-start gap-3">
@@ -163,7 +163,9 @@ const greeting = computed(() => {
     </UiCard>
 
     <footer class="space-y-2 pt-2 text-center">
-      <p class="text-xs text-ink-faint">
+      <AppSupport class="mx-auto max-w-sm text-left" />
+
+      <p class="pt-1 text-xs text-ink-faint">
         {{ overall.touched }} of {{ TOTAL_UNITS }} provisions started ·
         {{ overall.byHeart }} known by heart
       </p>

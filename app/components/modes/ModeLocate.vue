@@ -85,7 +85,7 @@ defineExpose({
     </UiCard>
 
     <!-- The four answers. -->
-    <ul class="grid gap-2">
+    <ul class="grid grid-cols-1 gap-2">
       <li v-for="option in options" :key="option.id">
         <button
           class="w-full rounded-xl border p-3 text-left transition-[border-color,background,transform] active:translate-y-px"

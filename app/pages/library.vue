@@ -47,7 +47,7 @@ const visible = computed(() => {
       />
     </label>
 
-    <ul class="grid gap-2 sm:grid-cols-2">
+    <ul class="grid grid-cols-1 gap-2 sm:grid-cols-2">
       <li v-for="article in visible" :key="article.id">
         <UiCard :to="`/article/${article.id}`" pad="sm" class="h-full">
           <div class="flex h-full items-start gap-3">
@@ -61,7 +61,7 @@ const visible = computed(() => {
               <p class="truncate text-sm font-semibold">
                 {{ article.subject || article.title }}
               </p>
-              <p class="stamp text-ink-faint">
+              <p class="stamp truncate text-ink-faint">
                 {{ article.title }} · {{ article.units.length }} provisions
               </p>
 

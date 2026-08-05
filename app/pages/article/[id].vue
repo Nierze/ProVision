@@ -93,35 +93,58 @@ const dueOn = (unit: Unit) => {
       </UiButton>
     </div>
 
-    <!-- Pick a single drill for the whole article. -->
-    <div class="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
-      <NuxtLink
-        v-for="drill in MODES"
-        :key="drill.id"
-        :to="`/drill?scope=article:${article.id}&mode=${drill.id}`"
-        class="flex shrink-0 items-center gap-1.5 rounded-full border border-line bg-panel px-3 py-2 text-xs font-semibold text-ink-dim transition-colors hover:border-accent/50 hover:text-ink"
-      >
-        <UiIcon :name="drill.icon" :size="14" />
-        {{ drill.name }}
-      </NuxtLink>
-    </div>
+    <!-- Or drill the article one way. Full cards, not chips: these are five
+         distinct choices, and a chip row reads as filters rather than actions. -->
+    <section>
+      <h2 class="stamp mb-2 text-ink-faint">Or practise one way</h2>
+      <ul class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <li v-for="drill in MODES" :key="drill.id">
+          <UiCard
+            :to="`/drill?scope=article:${article.id}&mode=${drill.id}`"
+            pad="sm"
+            class="group h-full"
+          >
+            <div class="flex items-start gap-3">
+              <span
+                class="mt-0.5 grid size-9 shrink-0 place-items-center rounded-lg bg-accent-soft text-accent transition-transform duration-200 ease-[var(--ease-out-soft)] group-hover:scale-110"
+              >
+                <UiIcon :name="drill.icon" :size="18" />
+              </span>
+              <span class="min-w-0">
+                <span class="block text-sm font-semibold">{{ drill.name }}</span>
+                <span class="block text-xs text-ink-dim">{{ drill.tagline }}</span>
+              </span>
+            </div>
+          </UiCard>
+        </li>
+      </ul>
+    </section>
 
     <!-- The provisions themselves. -->
-    <section v-for="group in groups" :key="group.subhead || 'main'">
+    <section v-for="(group, gi) in groups" :key="group.subhead || 'main'">
       <h2 v-if="group.subhead" class="ornament stamp my-4">{{ group.subhead }}</h2>
+      <h2 v-else-if="gi === 0" class="stamp mb-2 text-ink-faint">
+        {{ article.units.length }} provisions
+      </h2>
 
       <ul class="space-y-2">
         <li v-for="unit in group.units" :key="unit.id">
           <UiCard pad="sm">
             <button
-              class="flex w-full items-center gap-3 text-left"
+              class="group flex min-h-11 w-full items-center gap-3 text-left"
               :aria-expanded="open === unit.id"
               @click="open = open === unit.id ? null : unit.id"
             >
-              <span class="stamp w-12 shrink-0 text-accent">{{ unit.short }}</span>
+              <span
+                class="stamp shrink-0 rounded-md bg-accent-soft px-1.5 py-1 text-center text-accent"
+              >
+                {{ unit.short }}
+              </span>
 
               <span class="min-w-0 flex-1">
-                <span class="block truncate text-sm font-medium">
+                <span
+                  class="block truncate text-sm font-medium transition-colors group-hover:text-accent"
+                >
                   {{ unit.topic || snippet(unit.text, 8) }}
                 </span>
                 <span class="stamp block text-ink-faint">
@@ -133,7 +156,7 @@ const dueOn = (unit: Unit) => {
               <UiIcon
                 name="chevronDown"
                 :size="16"
-                class="shrink-0 text-ink-faint transition-transform"
+                class="shrink-0 text-ink-faint transition-transform duration-200"
                 :class="open === unit.id && 'rotate-180'"
               />
             </button>

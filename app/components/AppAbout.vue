@@ -54,6 +54,8 @@ import { AUTHOR } from '~/data/author'
           </a>
         </li>
       </ul>
+
+      <AppSupport class="mt-4" />
     </div>
   </section>
 </template>

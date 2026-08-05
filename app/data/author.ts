@@ -1,3 +1,9 @@
+export const SUPPORT = {
+  wallet: 'GCash',
+  name: 'Melchor Filippe Bulanon',
+  number: '09156916934',
+} as const
+
 export const AUTHOR = {
   name: 'Melchor Filippe S. Bulanon',
   links: [
