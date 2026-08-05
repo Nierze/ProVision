@@ -121,6 +121,15 @@ export function chunkForOrdering(text: string, maxWords = 9, min = 3): string[] 
   return parts
 }
 
+/**
+ * Every word its own tile, punctuation riding along with it. The finest grain
+ * the Order drill offers — `chunkForOrdering`'s seams stop at three words
+ * because a lone "of" isn't worth placing, but here that's the whole point.
+ */
+export function chunkByWord(text: string): string[] {
+  return tokenise(text).map(token => `${token.lead}${token.word}${token.trail}`)
+}
+
 function splitAfterPunctuation(text: string): string[] {
   const out: string[] = []
   let current: string[] = []

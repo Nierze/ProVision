@@ -20,12 +20,16 @@ const GRAINS = [
   { value: 14, label: 'Clauses' },
   { value: 9, label: 'Phrases' },
   { value: 5, label: 'Fragments' },
+  /** Below `chunkForOrdering`'s own floor, so it gets a dedicated word splitter instead. */
+  { value: 1, label: 'Words' },
 ] as const
 
 const grain = ref(nearestGrain(14 - props.intensity * 9))
 
 /** The tiles in their true order. Index doubles as the answer key. */
-const chunks = computed(() => chunkForOrdering(props.unit.text, grain.value))
+const chunks = computed(() =>
+  grain.value === 1 ? chunkByWord(props.unit.text) : chunkForOrdering(props.unit.text, grain.value),
+)
 
 const bank = ref<number[]>([])
 const tray = ref<number[]>([])
@@ -44,7 +48,16 @@ function deal() {
   graded.value = false
 }
 
+// A new unit or a new grain is a fresh puzzle either way, so it always deals
+// (and therefore always reshuffles) rather than reusing whatever order the
+// last grain happened to leave the bank in.
 watch(() => [props.unit.id, grain.value], deal, { immediate: true })
+
+/** Reshuffle the pieces still waiting, without disturbing what's already placed. */
+function shuffleBank() {
+  if (graded.value) return
+  bank.value = shuffle(bank.value)
+}
 
 function place(id: number) {
   if (graded.value) return
@@ -104,7 +117,12 @@ defineExpose({ actionLabel: 'Check order', canCheck, check, hideAction: false, r
         </button>
       </div>
 
-      <span class="stamp shrink-0 text-ink-faint">{{ chunks.length }} pieces</span>
+      <div class="flex items-center gap-2">
+        <span class="stamp shrink-0 text-ink-faint">{{ chunks.length }} pieces</span>
+        <UiButton size="sm" icon="shuffle" :disabled="graded || !bank.length" @click="shuffleBank">
+          Shuffle
+        </UiButton>
+      </div>
     </div>
 
     <p class="text-sm text-ink-dim">
