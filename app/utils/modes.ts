@@ -81,7 +81,9 @@ export const MODES: ModeInfo[] = [
     xp: 8,
     demand: 1,
     icon: 'locate',
-    suits: () => true,
+    // Needs siblings to distinguish between — the Preamble and Article I are
+    // each just one section, so there is no address to tell it apart from.
+    suits: unit => unit.articleId !== 'preamble' && unit.articleId !== 'art-1',
   },
 ]
 

@@ -40,9 +40,33 @@ const { settings } = useSettings()
 const { record } = useProgress()
 const { buildQueue, taskFor } = useDrill()
 
+/** How many to offer on the pre-session ask — same ladder as the Settings page. */
+const COUNT_OPTIONS = [5, 8, 12, 20]
+
 const scope = computed(() => String(route.query.scope ?? 'review'))
 const mode = computed(() => String(route.query.mode ?? 'mixed') as ModeId | 'mixed')
-const count = computed(() => Number(route.query.n ?? settings.sessionLength))
+
+/**
+ * A single provision's own ladder ignores `count` entirely (see
+ * `ladderForOneUnit`), so there is nothing to ask about there — only a
+ * multi-provision session needs a length.
+ */
+const needsCount = computed(() => !scope.value.startsWith('unit:'))
+
+/** The learner's pick for *this* session. Reset whenever scope or mode genuinely change. */
+const pendingCount = ref<number | null>(null)
+watch([scope, mode], () => {
+  pendingCount.value = null
+})
+
+const awaitingCount = computed(
+  () => needsCount.value && route.query.n == null && pendingCount.value == null,
+)
+const count = computed(() => Number(route.query.n ?? pendingCount.value ?? settings.sessionLength))
+
+function chooseCount(n: number) {
+  pendingCount.value = n
+}
 
 const tasks = ref<Task[]>([])
 const index = ref(0)
@@ -59,6 +83,7 @@ const progressValue = computed(() =>
 )
 
 function start() {
+  if (awaitingCount.value) return
   tasks.value = buildQueue({ scope: scope.value, mode: mode.value, count: count.value })
   index.value = 0
   graded.value = false
@@ -67,7 +92,7 @@ function start() {
   lastXp.value = 0
 }
 
-watch([scope, mode, count], start, { immediate: true })
+watch([scope, mode, count, awaitingCount], start, { immediate: true })
 
 /* ------------------------------------------------------------------ */
 /* Advancing                                                           */
@@ -90,11 +115,26 @@ function onGraded(result: TaskResult) {
 }
 
 function advance() {
-  if (index.value + 1 >= tasks.value.length) finished.value = true
-  else {
-    index.value++
-    graded.value = false
+  if (index.value + 1 >= tasks.value.length) {
+    finished.value = true
+    return
   }
+
+  // Locate is paired-associate drilling on one article's addresses — the
+  // queue's own order would drag you off to something else entirely, so it
+  // keeps quizzing random sections of the same article instead.
+  const current = task.value
+  if (current?.mode === 'locate') tasks.value[index.value + 1] = randomLocateTask(current.unit)
+
+  index.value++
+  graded.value = false
+}
+
+function randomLocateTask(after: Unit): Task {
+  const siblings = (articleById(after.articleId)?.units ?? []).filter(
+    unit => unit.id !== after.id && modeInfo('locate').suits(unit),
+  )
+  return taskFor(sample(siblings, 1)[0] ?? after, 'locate')
 }
 
 /** Redo the current task from scratch instead of moving on. */
@@ -164,8 +204,46 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 </script>
 
 <template>
+  <!-- Ask before building the queue, so a session is never longer than the learner meant it to be. -->
+  <div v-if="awaitingCount" class="flex min-h-dvh flex-col">
+    <header class="px-4 py-3">
+      <NuxtLink
+        to="/"
+        class="grid size-9 shrink-0 place-items-center rounded-lg text-ink-faint transition-colors hover:bg-panel-2 hover:text-ink"
+        aria-label="Cancel"
+      >
+        <UiIcon name="close" :size="19" />
+      </NuxtLink>
+    </header>
+
+    <div class="mx-auto grid w-full max-w-md flex-1 place-items-center px-4 text-center">
+      <div>
+        <TheSeal :size="52" class="mx-auto" />
+        <h1 class="mt-3 font-serif text-2xl font-bold">How many questions?</h1>
+        <p class="mt-1 text-sm text-ink-dim">{{ describeScope(scope) }}</p>
+
+        <div class="mt-5 inline-flex overflow-hidden rounded-lg border border-line">
+          <button
+            v-for="n in COUNT_OPTIONS"
+            :key="n"
+            type="button"
+            class="min-h-11 px-4 text-sm font-semibold transition-colors"
+            :class="
+              n === settings.sessionLength
+                ? 'bg-accent text-white'
+                : 'text-ink-dim hover:bg-panel-2 hover:text-ink'
+            "
+            @click="chooseCount(n)"
+          >
+            {{ n }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <DrillSummary
-    v-if="finished"
+    v-else-if="finished"
     :tasks="tasks"
     :xp="sessionXp"
     :scope="scope"
