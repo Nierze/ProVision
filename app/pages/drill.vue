@@ -191,7 +191,11 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
         </span>
       </div>
 
-      <DrillSectionNav :unit="task.unit" @select="jumpToSection" />
+      <DrillSectionNav
+        :unit="task.unit"
+        :hide-number="task.mode === 'locate'"
+        @select="jumpToSection"
+      />
     </header>
 
     <!-- The drill itself -->
