@@ -98,8 +98,13 @@ watch([scope, mode, count, awaitingCount], start, { immediate: true })
 /* Advancing                                                           */
 /* ------------------------------------------------------------------ */
 
-/** Locate units answered correctly this session — kept scarce, not excluded, in `randomLocateTask`. */
+/**
+ * Locate's standing per unit this session, for weighting in `randomLocateTask`:
+ * answered correctly last time (kept scarce), missed some number of times and
+ * not since redeemed (kept in heavy rotation until it is), or neither yet.
+ */
 const locateSolved = ref<Set<string>>(new Set())
+const locateMisses = ref<Map<string, number>>(new Map())
 
 function onGraded(result: TaskResult) {
   const current = task.value
@@ -114,7 +119,16 @@ function onGraded(result: TaskResult) {
     lastXp.value = record(current.unit, current.mode, result)
     sessionXp.value += lastXp.value
   }
-  if (current.mode === 'locate' && result.accuracy === 1) locateSolved.value.add(current.unit.id)
+  if (current.mode === 'locate') {
+    if (result.accuracy === 1) {
+      locateSolved.value.add(current.unit.id)
+    } else {
+      // A fresh miss outweighs an old one turning up again — one more chance
+      // to get it right beats stacking the same slip-up on the pile.
+      locateSolved.value.delete(current.unit.id)
+      locateMisses.value.set(current.unit.id, (locateMisses.value.get(current.unit.id) ?? 0) + 1)
+    }
+  }
   graded.value = true
 }
 
@@ -139,15 +153,27 @@ function advance() {
 }
 
 /**
- * A section just answered correctly is far less likely to come up again —
- * not excluded outright, since a two- or three-section article needs it back
- * in rotation eventually, but weighted down so the others get their turn.
+ * A section just answered correctly is far less likely to come up again — not
+ * excluded outright, since a two- or three-section article needs it back in
+ * rotation eventually, but weighted down so the others get their turn.
+ *
+ * A section just missed is weighted the other way: it comes back sooner, and
+ * each further miss raises it again, rather than letting one bad guess get
+ * buried in a big article and never revisited this session.
  */
 function randomLocateTask(after: Unit): Task {
   const siblings = (articleById(after.articleId)?.units ?? []).filter(
     unit => unit.id !== after.id && modeInfo('locate').suits(unit),
   )
-  return taskFor(weightedPick(siblings, unit => (locateSolved.value.has(unit.id) ? 1 : 6)) ?? after, 'locate')
+  return taskFor(weightedPick(siblings, locateWeight) ?? after, 'locate')
+}
+
+const BASE_WEIGHT = 6
+
+function locateWeight(unit: Unit): number {
+  if (locateSolved.value.has(unit.id)) return 1
+  const misses = locateMisses.value.get(unit.id) ?? 0
+  return BASE_WEIGHT + misses * BASE_WEIGHT
 }
 
 function weightedPick<T>(items: T[], weight: (item: T) => number): T | undefined {
