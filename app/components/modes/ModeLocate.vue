@@ -42,6 +42,23 @@ watch(() => props.unit.id, deal, { immediate: true })
 
 const correct = computed(() => picked.value?.id === props.unit.id)
 
+/**
+ * The options carry bare citations so they don't name the answer, which leaves
+ * a wrong pick saying nothing on its own — "Section 27" teaches you nothing
+ * about what you mistook this for. Name it once the answer is in.
+ *
+ * Only a fifth of the Constitution has a curated topic, so everywhere else the
+ * provision's own opening words stand in as its name.
+ */
+const verdict = computed(() => {
+  const wrong = picked.value
+  if (!wrong) return ''
+  if (correct.value) return 'Correct.'
+  const named = wrong.topic || snippet(wrong.text, 9)
+  const stop = /[.…!?]$/.test(named) ? '' : '.'
+  return `That was ${wrong.cite} — ${named}${stop} This one is ${props.unit.cite}.`
+})
+
 function choose(option: Unit) {
   if (picked.value) return
   picked.value = option
@@ -94,7 +111,7 @@ defineExpose({
     </ul>
 
     <p v-if="picked" class="animate-rise text-sm font-semibold" :class="correct ? 'text-good' : 'text-bad'">
-      {{ correct ? 'Correct.' : `That was ${picked.cite}. This one is ${unit.cite}.` }}
+      {{ verdict }}
     </p>
   </div>
 </template>
