@@ -63,6 +63,20 @@ export function useDrill() {
     }))
   }
 
+  /**
+   * The most provisions a scope could ever offer, ignoring session length.
+   * One means there is nothing to choose — the Preamble and Article I are a
+   * single section each, so asking how many to study would be a formality.
+   */
+  function scopeSize(scope: string): number {
+    if (scope.startsWith('unit:')) return 1
+    if (scope.startsWith('article:')) {
+      return articleById(scope.slice('article:'.length))?.units.length ?? 0
+    }
+    if (scope === 'all') return UNITS.length
+    return progress.dueUnits.value.length + progress.freshUnits.value.length
+  }
+
   function unitsFor(request: DrillRequest): Unit[] {
     if (request.scope.startsWith('article:')) {
       const article = articleById(request.scope.slice('article:'.length))
@@ -137,7 +151,7 @@ export function useDrill() {
     return nearest?.id ?? 'blanks'
   }
 
-  return { buildQueue, taskFor: toTask }
+  return { buildQueue, taskFor: toTask, scopeSize }
 }
 
 /** A human sentence for the session header. */

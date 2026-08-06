@@ -38,7 +38,7 @@ interface ModeApi {
 const route = useRoute()
 const { settings } = useSettings()
 const { record } = useProgress()
-const { buildQueue, taskFor } = useDrill()
+const { buildQueue, taskFor, scopeSize } = useDrill()
 
 /** How many to offer on the pre-session ask — same ladder as the Settings page. */
 const COUNT_OPTIONS = [5, 8, 12, 20]
@@ -49,11 +49,11 @@ const scope = computed(() => String(route.query.scope ?? 'review'))
 const mode = computed(() => String(route.query.mode ?? 'mixed') as ModeId | 'mixed')
 
 /**
- * A single provision's own ladder ignores `count` entirely (see
- * `ladderForOneUnit`), so there is nothing to ask about there — only a
- * multi-provision session needs a length.
+ * Only a scope with something to choose between needs a length. A single
+ * provision's own ladder ignores `count` entirely (see `ladderForOneUnit`),
+ * and a one-section article — the Preamble, Article I — has nothing to ask.
  */
-const needsCount = computed(() => !scope.value.startsWith('unit:'))
+const needsCount = computed(() => scopeSize(scope.value) > 1)
 
 /** The learner's pick for *this* session. Reset whenever scope or mode genuinely change. */
 const pendingCount = ref<number | null>(null)
