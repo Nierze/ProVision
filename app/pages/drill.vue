@@ -70,6 +70,55 @@ function chooseCount(n: number) {
   pendingCount.value = n
 }
 
+/* ------------------------------------------------------------------ */
+/* Which sections of an article to cover                               */
+/* ------------------------------------------------------------------ */
+
+/** The article's sections, when the scope is an article — otherwise nothing to narrow. */
+const rangeUnits = computed(() =>
+  scope.value.startsWith('article:')
+    ? (articleById(scope.value.slice('article:'.length))?.units ?? [])
+    : [],
+)
+
+const rangeFrom = ref(0)
+const rangeTo = ref(0)
+
+// A new article brings a new set of sections, so the range starts as all of them.
+watch(
+  rangeUnits,
+  units => {
+    rangeFrom.value = 0
+    rangeTo.value = Math.max(0, units.length - 1)
+  },
+  { immediate: true },
+)
+
+// The ends can't cross; whichever was just moved pushes the other along.
+watch(rangeFrom, value => {
+  if (rangeTo.value < value) rangeTo.value = value
+})
+watch(rangeTo, value => {
+  if (rangeFrom.value > value) rangeFrom.value = value
+})
+
+const rangeIsWhole = computed(
+  () => rangeFrom.value === 0 && rangeTo.value === rangeUnits.value.length - 1,
+)
+const rangeCount = computed(() => rangeTo.value - rangeFrom.value + 1)
+
+function resetRange() {
+  rangeFrom.value = 0
+  rangeTo.value = Math.max(0, rangeUnits.value.length - 1)
+}
+
+/** Left undefined for a whole article, so the default path behaves exactly as before. */
+const range = computed(() =>
+  rangeUnits.value.length && !rangeIsWhole.value
+    ? { from: rangeFrom.value, to: rangeTo.value }
+    : undefined,
+)
+
 /**
  * A number typed in rather than picked off the ladder. `v-model` on a number
  * input hands back a number, or `''` when the field is empty or unparseable.
@@ -100,7 +149,12 @@ const progressValue = computed(() =>
 
 function start() {
   if (awaitingCount.value) return
-  tasks.value = buildQueue({ scope: scope.value, mode: mode.value, count: count.value })
+  tasks.value = buildQueue({
+    scope: scope.value,
+    mode: mode.value,
+    count: count.value,
+    range: range.value,
+  })
   index.value = 0
   graded.value = false
   finished.value = false
@@ -283,7 +337,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
     </header>
 
     <div class="mx-auto grid w-full max-w-md flex-1 place-items-center px-4 text-center">
-      <div>
+      <div class="w-full">
         <TheSeal :size="52" class="mx-auto" />
         <h1 class="mt-3 font-serif text-2xl font-bold">How many questions?</h1>
         <p class="mt-1 text-sm text-ink-dim">{{ describeScope(scope) }}</p>
@@ -323,6 +377,60 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
         <p class="mt-2 text-xs text-ink-faint">
           Up to {{ MAX_COUNT }} — a shorter scope simply runs out sooner.
         </p>
+
+        <!-- Narrowing an article to a stretch of sections. Whole article unless touched. -->
+        <details v-if="rangeUnits.length > 1" class="mt-5 rounded-lg border border-line text-left">
+          <summary
+            class="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 text-sm font-semibold text-ink-dim transition-colors hover:text-ink"
+          >
+            <span>Advanced settings</span>
+            <span class="stamp text-ink-faint">
+              {{ rangeIsWhole ? 'All sections' : `${rangeCount} of ${rangeUnits.length}` }}
+            </span>
+          </summary>
+
+          <div class="border-t border-line px-3 py-3">
+            <p class="text-xs text-ink-dim">Sections to study</p>
+
+            <!-- Stacked: a section label with its topic is far too long to sit two abreast. -->
+            <div class="mt-2 space-y-2">
+              <label class="block">
+                <span class="stamp text-ink-faint">From</span>
+                <select
+                  v-model.number="rangeFrom"
+                  aria-label="First section"
+                  class="mt-1 block min-h-11 w-full min-w-0 rounded-lg border border-line bg-panel px-2 text-sm text-ink outline-none transition-colors focus:border-accent/60"
+                >
+                  <option v-for="(unit, i) in rangeUnits" :key="unit.id" :value="i">
+                    {{ unit.short }}{{ unit.topic ? ` — ${unit.topic}` : '' }}
+                  </option>
+                </select>
+              </label>
+
+              <label class="block">
+                <span class="stamp text-ink-faint">To</span>
+                <select
+                  v-model.number="rangeTo"
+                  aria-label="Last section"
+                  class="mt-1 block min-h-11 w-full min-w-0 rounded-lg border border-line bg-panel px-2 text-sm text-ink outline-none transition-colors focus:border-accent/60"
+                >
+                  <option v-for="(unit, i) in rangeUnits" :key="unit.id" :value="i">
+                    {{ unit.short }}{{ unit.topic ? ` — ${unit.topic}` : '' }}
+                  </option>
+                </select>
+              </label>
+            </div>
+
+            <button
+              v-if="!rangeIsWhole"
+              type="button"
+              class="mt-2 text-xs font-semibold text-accent transition-opacity hover:opacity-75"
+              @click="resetRange"
+            >
+              Reset to all sections
+            </button>
+          </div>
+        </details>
       </div>
     </div>
   </div>

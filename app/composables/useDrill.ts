@@ -35,6 +35,11 @@ export interface DrillRequest {
   /** A specific drill, or `mixed` to let mastery choose. */
   mode: ModeId | 'mixed'
   count: number
+  /**
+   * Narrow an article to some of its sections — inclusive, zero-based indices
+   * into `article.units`. Absent means the whole article.
+   */
+  range?: { from: number; to: number }
 }
 
 export function useDrill() {
@@ -81,7 +86,10 @@ export function useDrill() {
     if (request.scope.startsWith('article:')) {
       const article = articleById(request.scope.slice('article:'.length))
       if (!article) return []
-      return fromCurrentPlace(article.units, request.count)
+      const chosen = request.range
+        ? article.units.slice(request.range.from, request.range.to + 1)
+        : article.units
+      return fromCurrentPlace(chosen, request.count)
     }
 
     if (request.scope === 'all') {
