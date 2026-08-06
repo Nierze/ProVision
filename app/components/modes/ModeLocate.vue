@@ -89,9 +89,6 @@ defineExpose({
           @click="choose(option)"
         >
           <span class="block font-serif text-base font-semibold">{{ option.cite }}</span>
-          <span v-if="option.topic" class="mt-0.5 block text-xs text-ink-faint">
-            {{ option.topic }}
-          </span>
         </button>
       </li>
     </ul>
