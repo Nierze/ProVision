@@ -9,7 +9,7 @@
  */
 import type { Grade, TaskResult, Unit } from '~/types'
 
-const props = defineProps<{ unit: Unit; intensity: number }>()
+const props = defineProps<{ unit: Unit; intensity: number; peeking?: boolean }>()
 const emit = defineEmits<{ graded: [TaskResult] }>()
 
 type Stage = 'read' | 'initials' | 'blind'
@@ -110,8 +110,9 @@ defineExpose({
     <p class="text-sm text-ink-dim">{{ revealed ? 'How did that go?' : currentHint }}</p>
 
     <!-- Before the reveal: the passage at the chosen level of scaffolding. -->
-    <ProvisionPaper v-if="!revealed" :unit="unit" :loose="stage === 'initials'">
-      <template v-if="stage === 'read'">{{ unit.text }}</template>
+    <ProvisionPaper v-if="!revealed" :unit="unit" :loose="!peeking && stage === 'initials'">
+      <!-- A peek collapses whatever scaffolding is in force back to the full text. -->
+      <template v-if="peeking || stage === 'read'">{{ unit.text }}</template>
 
       <template v-else-if="stage === 'initials'">
         <span v-for="(token, i) in tokens" :key="i" class="inline-block whitespace-nowrap">

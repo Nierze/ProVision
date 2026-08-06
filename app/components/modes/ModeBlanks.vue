@@ -6,7 +6,7 @@
  */
 import type { TaskResult, Unit } from '~/types'
 
-const props = defineProps<{ unit: Unit; intensity: number }>()
+const props = defineProps<{ unit: Unit; intensity: number; peeking?: boolean }>()
 const emit = defineEmits<{ graded: [TaskResult] }>()
 
 const { settings } = useSettings()
@@ -218,7 +218,15 @@ defineExpose({ actionLabel: 'Check', canCheck, check, hideAction: false, retry }
     <div ref="paper">
       <ProvisionPaper :unit="unit" loose>
         <template v-for="(token, i) in tokens" :key="i">
-          <span v-if="blankAt.get(i)" class="inline-block whitespace-nowrap">
+          <span v-if="blankAt.get(i)" class="relative inline-block whitespace-nowrap">
+            <!-- Sits above the blank rather than replacing it, so a peek costs
+                 neither what you have typed nor where the caret was. -->
+            <span
+              v-if="peeking && !graded"
+              class="pointer-events-none absolute inset-x-0 bottom-full text-center text-[0.72em] leading-tight font-semibold text-royal-700"
+              >{{ token.word }}</span
+            >
+
             <template v-if="token.lead && showPunctuation">{{ token.lead }}</template>
 
             <!-- Solved words settle back into the sentence as plain text. -->

@@ -7,10 +7,11 @@ bar; a mode owns everything between them.
 ## The contract
 
 ```ts
-// Props — the shell always supplies both.
+// Props — the shell always supplies these.
 defineProps<{
   unit: Unit          // the provision to drill
   intensity: number   // 0–1, how much help to withhold (from the unit's mastery)
+  peeking?: boolean   // true while the learner holds Peek — show the answer
 }>()
 
 // Emit exactly once, when the attempt has been scored.
@@ -34,6 +35,12 @@ underlying task, so the learner faces the same blanks/order/question again.
 Only the first `graded` emission per task counts toward XP and scheduling —
 the shell tracks that, so `retry` itself needs no bookkeeping beyond resetting
 local state.
+
+`peeking` is held down, not toggled, and the shell clears it on grading and on
+moving to the next task — so a mode only has to render the answer while it is
+true. Reveal it *alongside* whatever the learner has entered rather than in
+place of it: swapping an `<input>` or `<textarea>` out mid-hold throws away the
+caret, and returns focus to nowhere on release.
 
 ## Adding a mode
 

@@ -13,7 +13,7 @@
 import type { TaskResult, Unit } from '~/types'
 import { UNITS, articleById } from '~/data/corpus'
 
-const props = defineProps<{ unit: Unit; intensity: number }>()
+const props = defineProps<{ unit: Unit; intensity: number; peeking?: boolean }>()
 const emit = defineEmits<{ graded: [TaskResult] }>()
 
 const options = ref<Unit[]>([])
@@ -97,7 +97,12 @@ defineExpose({
         <button
           class="w-full rounded-xl border p-3 text-left transition-[border-color,background,transform] active:translate-y-px"
           :class="[
-            !picked && 'border-line bg-panel hover:border-accent/50 hover:bg-panel-2',
+            // Kept mutually exclusive — two border utilities on one element are
+            // decided by stylesheet order, not by the order written here.
+            !picked && peeking && option.id === unit.id && 'border-good/60 bg-good/10',
+            !picked &&
+              !(peeking && option.id === unit.id) &&
+              'border-line bg-panel hover:border-accent/50 hover:bg-panel-2',
             picked && option.id === unit.id && 'border-good/50 bg-good/10',
             picked && option.id === picked.id && option.id !== unit.id && 'border-bad/50 bg-bad/10',
             picked && option.id !== unit.id && option.id !== picked.id && 'border-line opacity-50',

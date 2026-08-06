@@ -8,7 +8,7 @@
  */
 import type { TaskResult, Unit } from '~/types'
 
-const props = defineProps<{ unit: Unit; intensity: number }>()
+const props = defineProps<{ unit: Unit; intensity: number; peeking?: boolean }>()
 const emit = defineEmits<{ graded: [TaskResult] }>()
 
 const typed = ref('')
@@ -62,6 +62,11 @@ defineExpose({ actionLabel: 'Check recall', canCheck, check, hideAction: false, 
       <span class="stamp text-ink-faint">{{ unit.wordCount }} words</span>
     </div>
     <p v-if="unit.topic && !graded" class="text-sm text-ink-dim">On: {{ unit.topic }}</p>
+
+    <!-- Above the box, not in place of it: the textarea keeps its text and the caret. -->
+    <ProvisionPaper v-if="peeking && !graded" :unit="unit" class="animate-rise">
+      {{ unit.text }}
+    </ProvisionPaper>
 
     <textarea
       v-if="!graded"

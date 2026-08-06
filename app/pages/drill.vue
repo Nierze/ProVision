@@ -290,6 +290,43 @@ function jumpToSection(unit: Unit) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Peeking — hold to see the answer, let go to hide it                 */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Held down rather than toggled, so the answer is never left on screen by
+ * accident. The release is caught on `window`, not the button: a pointer let
+ * go anywhere else, a cancelled touch, or a tab switch mid-hold would all
+ * otherwise strand it open.
+ */
+const peeking = ref(false)
+
+/** Nothing to reveal once the answer is on screen anyway. */
+const canPeek = computed(() => Boolean(task.value) && !graded.value && !finished.value)
+
+function startPeek() {
+  // Guards a key auto-repeat and a second pointer from stacking listeners.
+  if (peeking.value || !canPeek.value) return
+  peeking.value = true
+  window.addEventListener('pointerup', stopPeek)
+  window.addEventListener('pointercancel', stopPeek)
+  window.addEventListener('blur', stopPeek)
+}
+
+function stopPeek() {
+  if (!peeking.value) return
+  peeking.value = false
+  window.removeEventListener('pointerup', stopPeek)
+  window.removeEventListener('pointercancel', stopPeek)
+  window.removeEventListener('blur', stopPeek)
+}
+
+// Grading, moving on, or leaving all drop the peek — the answer must never
+// outlive the question it belonged to.
+watch([() => task.value?.unit.id, graded, finished], stopPeek)
+onUnmounted(stopPeek)
+
+/* ------------------------------------------------------------------ */
 /* The one button at the bottom                                        */
 /* ------------------------------------------------------------------ */
 
@@ -485,6 +522,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
         ref="activeMode"
         :unit="task.unit"
         :intensity="task.intensity"
+        :peeking="peeking"
         @graded="onGraded"
       />
     </main>
@@ -501,6 +539,23 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
         >
           +{{ lastXp }} XP
         </span>
+
+        <!-- Hold, don't tap: releasing anywhere at all puts the answer away again. -->
+        <UiButton
+          v-if="canPeek"
+          variant="secondary"
+          size="lg"
+          icon="hint"
+          class="shrink-0 touch-none select-none"
+          :aria-pressed="peeking"
+          aria-label="Hold to reveal the answer"
+          @pointerdown="startPeek"
+          @keydown.space.prevent="startPeek"
+          @keyup.space="stopPeek"
+          @contextmenu.prevent
+        >
+          Peek
+        </UiButton>
 
         <template v-if="!hideAction || graded">
           <UiButton

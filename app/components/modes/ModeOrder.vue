@@ -8,7 +8,7 @@
  */
 import type { TaskResult, Unit } from '~/types'
 
-const props = defineProps<{ unit: Unit; intensity: number }>()
+const props = defineProps<{ unit: Unit; intensity: number; peeking?: boolean }>()
 const emit = defineEmits<{ graded: [TaskResult] }>()
 
 const { settings } = useSettings()
@@ -185,7 +185,12 @@ defineExpose({ actionLabel: 'Check order', canCheck, check, hideAction: false, r
       </span>
     </p>
 
-    <ProvisionPaper v-if="graded && !perfect" :unit="unit" :show-cite="false" class="animate-rise">
+    <ProvisionPaper
+      v-if="peeking || (graded && !perfect)"
+      :unit="unit"
+      :show-cite="false"
+      class="animate-rise"
+    >
       <span class="stamp mb-2 block text-parchment-dim">In order</span>
       {{ unit.text }}
     </ProvisionPaper>
