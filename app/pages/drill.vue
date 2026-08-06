@@ -42,6 +42,8 @@ const { buildQueue, taskFor } = useDrill()
 
 /** How many to offer on the pre-session ask — same ladder as the Settings page. */
 const COUNT_OPTIONS = [5, 8, 12, 20]
+/** Asking for more than the scope holds is harmless — the queue is simply as long as it can be. */
+const MAX_COUNT = 100
 
 const scope = computed(() => String(route.query.scope ?? 'review'))
 const mode = computed(() => String(route.query.mode ?? 'mixed') as ModeId | 'mixed')
@@ -66,6 +68,20 @@ const count = computed(() => Number(route.query.n ?? pendingCount.value ?? setti
 
 function chooseCount(n: number) {
   pendingCount.value = n
+}
+
+/**
+ * A number typed in rather than picked off the ladder. `v-model` on a number
+ * input hands back a number, or `''` when the field is empty or unparseable.
+ */
+const customCount = ref<number | ''>('')
+const customValid = computed(() => {
+  const n = customCount.value
+  return n !== '' && Number.isInteger(n) && n >= 1 && n <= MAX_COUNT
+})
+
+function startCustom() {
+  if (customValid.value) chooseCount(Number(customCount.value))
 }
 
 const tasks = ref<Task[]>([])
@@ -288,6 +304,25 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
             {{ n }}
           </button>
         </div>
+
+        <div class="mt-3 flex items-center justify-center gap-2">
+          <input
+            v-model="customCount"
+            type="number"
+            min="1"
+            :max="MAX_COUNT"
+            inputmode="numeric"
+            placeholder="Custom"
+            aria-label="Custom number of questions"
+            class="min-h-11 w-28 rounded-lg border border-line bg-panel px-3 text-center text-sm text-ink outline-none transition-colors placeholder:text-ink-faint focus:border-accent/60"
+            @keyup.enter="startCustom"
+          />
+          <UiButton variant="primary" :disabled="!customValid" @click="startCustom">Start</UiButton>
+        </div>
+
+        <p class="mt-2 text-xs text-ink-faint">
+          Up to {{ MAX_COUNT }} — a shorter scope simply runs out sooner.
+        </p>
       </div>
     </div>
   </div>
