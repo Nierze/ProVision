@@ -98,6 +98,9 @@ watch([scope, mode, count, awaitingCount], start, { immediate: true })
 /* Advancing                                                           */
 /* ------------------------------------------------------------------ */
 
+/** Locate units answered correctly this session — kept scarce, not excluded, in `randomLocateTask`. */
+const locateSolved = ref<Set<string>>(new Set())
+
 function onGraded(result: TaskResult) {
   const current = task.value
   if (!current || graded.value) return
@@ -111,6 +114,7 @@ function onGraded(result: TaskResult) {
     lastXp.value = record(current.unit, current.mode, result)
     sessionXp.value += lastXp.value
   }
+  if (current.mode === 'locate' && result.accuracy === 1) locateSolved.value.add(current.unit.id)
   graded.value = true
 }
 
@@ -134,11 +138,27 @@ function advance() {
   graded.value = false
 }
 
+/**
+ * A section just answered correctly is far less likely to come up again —
+ * not excluded outright, since a two- or three-section article needs it back
+ * in rotation eventually, but weighted down so the others get their turn.
+ */
 function randomLocateTask(after: Unit): Task {
   const siblings = (articleById(after.articleId)?.units ?? []).filter(
     unit => unit.id !== after.id && modeInfo('locate').suits(unit),
   )
-  return taskFor(sample(siblings, 1)[0] ?? after, 'locate')
+  return taskFor(weightedPick(siblings, unit => (locateSolved.value.has(unit.id) ? 1 : 6)) ?? after, 'locate')
+}
+
+function weightedPick<T>(items: T[], weight: (item: T) => number): T | undefined {
+  if (!items.length) return undefined
+  const weights = items.map(weight)
+  let roll = Math.random() * weights.reduce((sum, w) => sum + w, 0)
+  for (let i = 0; i < items.length; i++) {
+    roll -= weights[i]!
+    if (roll < 0) return items[i]
+  }
+  return items[items.length - 1]
 }
 
 /** Redo the current task from scratch instead of moving on. */
